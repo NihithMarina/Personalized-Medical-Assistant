@@ -1,0 +1,674 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Patient Profile - PMA{% endblock %}
+
+{% block content %}
+<style>
+    /* Dashboard-consistent styling */
+    .dashboard-section {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 6px 30px rgba(16,24,40,0.06);
+        padding: 32px 28px;
+        margin-bottom: 28px;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+    
+    .header-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        font-size: 22px;
+        box-shadow: 0 4px 12px rgba(16,24,40,0.04);
+    }
+    
+    .page-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #1e40af;
+        margin: 0;
+        line-height: 1.05;
+        letter-spacing: -0.4px;
+    }
+    
+    .page-subtitle {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-top: 6px;
+    }
+    
+    /* Container for better space utilization */
+    .profile-container {
+        max-width: 95%;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    /* Back navigation */
+    .back-navigation {
+        margin-bottom: 20px;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .back-btn:hover {
+        background: #f8fafc;
+        color: #1e40af;
+        transform: translateX(-2px);
+    }
+    
+    .back-btn i {
+        font-size: 16px;
+    }
+    
+    /* Profile information grid */
+    .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    
+    .info-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16,24,40,0.08);
+        border-color: #1e40af;
+    }
+    
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        margin-right: 12px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .profile-details {
+        display: grid;
+        gap: 12px;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .detail-value {
+        color: #1e293b;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: right;
+    }
+    
+    /* BMI Section */
+    .bmi-card {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid #bae6fd;
+        border-radius: 12px;
+        padding: 28px;
+        margin-bottom: 24px;
+    }
+    
+    .bmi-header {
+        display: flex;
+        align-items: center;
+        justify-content: between;
+        margin-bottom: 20px;
+    }
+    
+    .bmi-score {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+    
+    .bmi-value {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #0369a1;
+        margin-bottom: 8px;
+    }
+    
+    .bmi-status {
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .bmi-status.normal {
+        background: #d1fae5;
+        color: #059669;
+    }
+    
+    .bmi-status.underweight {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    
+    .bmi-status.overweight {
+        background: #fed7aa;
+        color: #ea580c;
+    }
+    
+    .bmi-status.obese {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .recommendations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 24px;
+    }
+    
+    .recommendation-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .rec-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .rec-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+    
+    .rec-icon.diet {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #d97706;
+    }
+    
+    .rec-icon.exercise {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #059669;
+    }
+    
+    .rec-icon.health {
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        color: #4338ca;
+    }
+    
+    .rec-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .rec-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .rec-list li {
+        padding: 6px 0;
+        color: #475569;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .rec-list li::before {
+        content: '•';
+        color: #059669;
+        font-weight: bold;
+        margin-top: 2px;
+    }
+    
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 32px;
+    }
+    
+    .btn-primary {
+        background: #1e40af;
+        color: #fff;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(30, 64, 175, 0.2);
+    }
+    
+    .btn-primary:hover {
+        background: #1e3a8a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 64, 175, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #fff;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .btn-secondary:hover {
+        border-color: #cbd5e1;
+        color: #475569;
+        transform: translateY(-1px);
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+        
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .recommendations-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .profile-container {
+            max-width: 100%;
+            padding: 0 0.5rem;
+        }
+    }
+    
+    /* Responsive adjustments */
+    @media (min-width: 1024px) {
+        .profile-container {
+            max-width: 1200px;
+            padding: 0 2rem;
+        }
+    }
+    
+    @media (min-width: 1440px) {
+        .profile-container {
+            max-width: 1400px;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <!-- Back Navigation -->
+    <div class="back-navigation">
+        <a href="{% url 'patients:dashboard' %}" class="back-btn">
+            <i class='bx bx-arrow-back'></i>
+            Back to Dashboard
+        </a>
+    </div>
+    
+    <!-- Header Section -->
+    <div class="dashboard-section">
+        <div class="profile-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class='bx bx-user'></i>
+                </div>
+                <div>
+                    <h1 class="page-title">Patient Profile</h1>
+                    <p class="page-subtitle">Your personal health information and medical details</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Information Grid -->
+        <div class="profile-grid">
+            <!-- Personal Information -->
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class='bx bx-user-circle'></i>
+                    </div>
+                    <h3 class="card-title">Personal Information</h3>
+                </div>
+                <div class="profile-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Full Name</div>
+                        <div class="detail-value">{{ profile.full_name }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Age</div>
+                        <div class="detail-value">{{ profile.age }} years</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Blood Group</div>
+                        <div class="detail-value">{{ profile.blood_group }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Physical Information -->
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class='bx bx-body'></i>
+                    </div>
+                    <h3 class="card-title">Physical Information</h3>
+                </div>
+                <div class="profile-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Height</div>
+                        <div class="detail-value">{{ profile.height }} cm</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Weight</div>
+                        <div class="detail-value">{{ profile.weight }} kg</div>
+                    </div>
+                    {% if bmi %}
+                    <div class="detail-row">
+                        <div class="detail-label">BMI</div>
+                        <div class="detail-value">{{ bmi|floatformat:1 }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Medical Information -->
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class='bx bx-health'></i>
+                    </div>
+                    <h3 class="card-title">Medical Information</h3>
+                </div>
+                <div class="profile-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Medical History</div>
+                        <div class="detail-value">{{ profile.medical_history|default:"None" }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Allergies</div>
+                        <div class="detail-value">{{ profile.allergies|default:"None" }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Current Medications</div>
+                        <div class="detail-value">{{ profile.current_medications|default:"None" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BMI Analysis Section -->
+    {% if bmi %}
+    <div class="dashboard-section">
+        <div class="bmi-card">
+            <div class="bmi-header">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class='bx bx-calculator'></i>
+                    </div>
+                    <h3 class="card-title">BMI Analysis</h3>
+                </div>
+            </div>
+
+            <div class="bmi-score">
+                <div class="bmi-value">{{ bmi|floatformat:1 }}</div>
+                <div class="bmi-status {% if bmi_status == 'Normal weight' %}normal{% elif bmi_status == 'Underweight' %}underweight{% elif bmi_status == 'Overweight' %}overweight{% elif bmi_status == 'Obese' %}obese{% endif %}">
+                    {{ bmi_status }}
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="recommendations-grid">
+                {% if bmi_status == 'Underweight' %}
+                <div class="recommendation-card">
+                    <div class="rec-header">
+                        <div class="rec-icon diet">
+                            <i class='bx bx-restaurant'></i>
+                        </div>
+                        <h4 class="rec-title">Nutrition Tips</h4>
+                    </div>
+                    <ul class="rec-list">
+                        <li>Increase calorie intake with healthy foods</li>
+                        <li>Include more proteins, nuts, and healthy fats</li>
+                        <li>Eat frequent small meals throughout the day</li>
+                        <li>Add dairy products and whole grains</li>
+                    </ul>
+                </div>
+                <div class="recommendation-card">
+                    <div class="rec-header">
+                        <div class="rec-icon exercise">
+                            <i class='bx bx-dumbbell'></i>
+                        </div>
+                        <h4 class="rec-title">Exercise Plan</h4>
+                    </div>
+                    <ul class="rec-list">
+                        <li>Focus on strength training exercises</li>
+                        <li>Include resistance training</li>
+                        <li>Build muscle mass gradually</li>
+                        <li>Combine with cardio exercises</li>
+                    </ul>
+                </div>
+                {% elif bmi_status == 'Normal weight' %}
+                <div class="recommendation-card">
+                    <div class="rec-header">
+                        <div class="rec-icon health">
+                            <i class='bx bx-check-circle'></i>
+                        </div>
+                        <h4 class="rec-title">Maintain Health</h4>
+                    </div>
+                    <ul class="rec-list">
+                        <li>Maintain a balanced diet</li>
+                        <li>Stay physically active</li>
+                        <li>Monitor your weight regularly</li>
+                        <li>Get regular health checkups</li>
+                    </ul>
+                </div>
+                {% elif bmi_status == 'Overweight' %}
+                <div class="recommendation-card">
+                    <div class="rec-header">
+                        <div class="rec-icon diet">
+                            <i class='bx bx-restaurant'></i>
+                        </div>
+                        <h4 class="rec-title">Diet Guidelines</h4>
+                    </div>
+                    <ul class="rec-list">
+                        <li>Reduce intake of sugary and fatty foods</li>
+                        <li>Increase fruits, vegetables, and whole grains</li>
+                        <li>Monitor portion sizes</li>
+                        <li>Limit processed foods</li>
+                    </ul>
+                </div>
+                <div class="recommendation-card">
+                    <div class="rec-header">
+                        <div class="rec-icon exercise">
+                            <i class='bx bx-run'></i>
+                        </div>
+                        <h4 class="rec-title">Exercise Plan</h4>
+                    </div>
+                    <ul class="rec-list">
+                        <li>Exercise regularly (cardio and strength training)</li>
+                        <li>Aim for 150 minutes of moderate activity per week</li>
+                        <li>Include both aerobic and resistance exercises</li>
+                        <li>Start gradually and increase intensity</li>
+                    </ul>
+                </div>
+                {% elif bmi_status == 'Obese' %}
+                <div class="recommendation-card">
+                    <div class="rec-header">
+                        <div class="rec-icon health">
+                            <i class='bx bx-plus-medical'></i>
+                        </div>
+                        <h4 class="rec-title">Medical Guidance</h4>
+                    </div>
+                    <ul class="rec-list">
+                        <li>Consult a healthcare provider for guidance</li>
+                        <li>Follow a medically supervised diet plan</li>
+                        <li>Monitor blood pressure and cholesterol</li>
+                        <li>Seek support for weight management</li>
+                    </ul>
+                </div>
+                <div class="recommendation-card">
+                    <div class="rec-header">
+                        <div class="rec-icon exercise">
+                            <i class='bx bx-walk'></i>
+                        </div>
+                        <h4 class="rec-title">Activity Plan</h4>
+                    </div>
+                    <ul class="rec-list">
+                        <li>Increase physical activity gradually</li>
+                        <li>Start with low-impact exercises</li>
+                        <li>Focus on consistency over intensity</li>
+                        <li>Track progress regularly</li>
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- General Health Tips -->
+                <div class="recommendation-card">
+                    <div class="rec-header">
+                        <div class="rec-icon health">
+                            <i class='bx bx-heart'></i>
+                        </div>
+                        <h4 class="rec-title">General Health Tips</h4>
+                    </div>
+                    <ul class="rec-list">
+                        <li>Stay hydrated and drink plenty of water</li>
+                        <li>Get 7-8 hours of sleep daily</li>
+                        <li>Manage stress with relaxation techniques</li>
+                        <li>Schedule regular health checkups</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="dashboard-section">
+        <div class="action-buttons">
+            <a href="{% url 'patients:edit_profile' %}" class="btn-primary">
+                <i class='bx bx-edit'></i>
+                Edit Profile
+            </a>
+            <a href="{% url 'patients:dashboard' %}" class="btn-secondary">
+                <i class='bx bx-home'></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

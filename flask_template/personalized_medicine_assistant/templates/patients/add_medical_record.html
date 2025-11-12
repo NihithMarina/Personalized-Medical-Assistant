@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Add Medical Record{% endblock %}
+
+{% block content %}
+<style>
+    /* Back navigation */
+    .back-navigation {
+        margin-bottom: 20px;
+        max-width: 2xl;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .back-btn:hover {
+        background: #f8fafc;
+        color: #1e40af;
+        transform: translateX(-2px);
+    }
+    
+    .back-btn i {
+        font-size: 16px;
+    }
+</style>
+
+<!-- Back Navigation -->
+<div class="back-navigation">
+    <a href="{% url 'patients:dashboard' %}" class="back-btn">
+        <i class='bx bx-arrow-back'></i>
+        Back to Dashboard
+    </a>
+</div>
+
+<div class="max-w-2xl mx-auto">
+    <div class="section">
+        <h2 class="section-title"><i class='bx bx-upload'></i> Upload Medical Record</h2>
+        <form action="{% url 'patients:add_medical_record' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <input name="title" placeholder="Title" required class="rounded px-3 py-2 border" />
+                <select name="record_type" class="rounded px-3 py-2 border">
+                    <option value="lab_report">Lab Report</option>
+                    <option value="prescription">Prescription</option>
+                    <option value="scan">Medical Scan</option>
+                    <option value="other">Other</option>
+                </select>
+                <input type="date" name="date_created" required class="rounded px-3 py-2 border" />
+                <textarea name="description" placeholder="Optional description" class="rounded px-3 py-2 border"></textarea>
+                <input type="file" name="file" />
+                <button type="submit" class="btn-primary">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

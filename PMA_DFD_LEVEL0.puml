@@ -1,0 +1,89 @@
+@startuml PMA_DFD_Level0
+' Personalized Medical Assistant - Data Flow Diagram (Level 0 / Context Diagram)
+' Generated: November 7, 2025
+' To use in draw.io: Arrange → Insert → Advanced → PlantUML
+
+title Personalized Medical Assistant\nData Flow Diagram - Level 0 (Context Diagram)
+
+' Professional colorful styling
+skinparam backgroundColor #F8F9FA
+
+skinparam rectangle {
+    BorderColor #424242
+    BorderThickness 3
+    FontSize 14
+    FontStyle bold
+}
+
+skinparam actor {
+    BorderColor #424242
+    BorderThickness 2
+    FontSize 13
+    FontStyle bold
+}
+
+skinparam database {
+    BorderColor #424242
+    BorderThickness 2
+    FontSize 12
+    FontStyle bold
+}
+
+skinparam arrow {
+    Color #424242
+    Thickness 2
+    FontSize 11
+    FontColor #212121
+}
+
+skinparam note {
+    BackgroundColor #E8F5E9
+    BorderColor #2E7D32
+    BorderThickness 2
+    FontSize 11
+}
+
+' ============ Layout ============
+left to right direction
+
+' ============ External Entities ============
+actor Patient #90CAF9
+actor Doctor #66BB6A
+
+' ============ Central System ============
+rectangle "PMA System" as PMA #A5D6A7
+
+' ============ Data Stores ============
+database "D1: Patient Data" as D1 #FFB74D
+database "D2: Doctor Data" as D2 #FFB74D
+database "D3: ML Models" as D3 #CE93D8
+
+' ============ Patient to System ============
+Patient --> PMA : Patient Data\n(Login, Records, Symptoms)
+
+' ============ System to Patient ============
+PMA --> Patient : Results & Notifications\n(Predictions, Appointments, Reminders)
+
+' ============ Doctor to System ============
+Doctor --> PMA : Doctor Input\n(Login, Notes, Prescriptions)
+
+' ============ System to Doctor ============
+PMA --> Doctor : Patient Information\n(History, Notifications)
+
+' ============ System to Data Stores ============
+PMA --> D1 : Read/Write
+PMA --> D2 : Read/Write
+PMA --> D3 : Read/Write
+
+' ============ Notes ============
+note right of PMA
+**Core Functions:**
+• Authentication
+• Medical Records
+• ML Prediction
+• Appointments
+• Communication
+• Reminders
+end note
+
+@enduml

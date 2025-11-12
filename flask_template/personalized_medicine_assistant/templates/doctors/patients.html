@@ -1,0 +1,1440 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Patient Records - Doctor Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    /* Full Page Layout */
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .main-container {
+        min-height: 100vh;
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Top Navigation Bar */
+    .top-navbar {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 16px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15);
+    }
+    
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .dashboard-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-1px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .nav-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .nav-title-icon {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 16px;
+        border-radius: 10px;
+    }
+    
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    /* Main Content Area */
+    .content-wrapper {
+        padding: 32px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 20px rgba(16, 24, 40, 0.08);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1e40af;
+        font-size: 28px;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.1);
+    }
+    
+    .header-text h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0 0 8px 0;
+        line-height: 1.1;
+    }
+    
+    .header-text p {
+        color: #64748b;
+        font-size: 1.1rem;
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .header-stats {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1e40af;
+        display: block;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 4px;
+    }
+    
+    /* Search Section */
+    .search-section {
+        background: white;
+        border-radius: 16px;
+        padding: 24px 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .search-container {
+        position: relative;
+        max-width: 500px;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 16px 20px 16px 56px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+        color: #1e293b;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #1e40af;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 20px;
+    }
+    
+    /* Patients Section */
+    .patients-section {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 24px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .patients-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 24px;
+    }
+    
+    .patient-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(16, 24, 40, 0.04);
+    }
+    
+    .patient-card:hover {
+        box-shadow: 0 8px 25px rgba(16, 24, 40, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .patient-header {
+        margin-bottom: 20px;
+    }
+    
+    .patient-avatar {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+    }
+    
+    .patient-info h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 4px 0;
+    }
+    
+    .patient-info p {
+        color: #64748b;
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .patient-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 16px 12px;
+        background: white;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+    
+    .stat-item:hover {
+        box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+    }
+    
+    .stat-number {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #1e40af;
+        display: block;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+    
+    .stat-label {
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .patient-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+    
+    .btn-action {
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+    
+    .btn-primary {
+        background: #1e40af;
+        color: #fff;
+    }
+    
+    .btn-primary:hover {
+        background: #1e3a8a;
+        transform: translateY(-1px);
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+    }
+    
+    .btn-secondary {
+        background: #f8fafc;
+        color: #64748b;
+        border-color: #e2e8f0;
+    }
+    
+    .btn-secondary:hover {
+        background: #e2e8f0;
+        color: #475569;
+        text-decoration: none;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #64748b;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+        color: #1e40af;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #374151;
+    }
+    
+    .empty-state p {
+        margin: 0;
+        font-size: 1rem;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .content-wrapper {
+            padding: 16px;
+        }
+        
+        .top-navbar {
+            padding: 12px 16px;
+        }
+        
+        .nav-left {
+            gap: 12px;
+        }
+        
+        .dashboard-btn {
+            padding: 8px 16px;
+        }
+        
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        
+        .header-stats {
+            flex-direction: row;
+            gap: 20px;
+        }
+        
+        .patients-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .patient-stats {
+            gap: 12px;
+        }
+        
+        .patient-actions {
+            flex-direction: column;
+        }
+    }
+    
+    .patient-card {
+        background: #fff;
+        border: 2px solid #f1f5f9;
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .patient-card:hover {
+        border-color: #1e40af;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(30, 64, 175, 0.1);
+    }
+    
+    .patient-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+    
+    .patient-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 700;
+    }
+    
+    .patient-info h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 4px 0;
+    }
+    
+    .patient-info p {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .patient-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 16px 0;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1e40af;
+        margin-bottom: 4px;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+    
+    .patient-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+    
+    .btn-action {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .btn-primary {
+        background: #1e40af;
+        color: #fff;
+    }
+    
+    .btn-primary:hover {
+        background: #1e3a8a;
+        transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+        background: #f8fafc;
+        color: #64748b;
+        border-color: #e2e8f0;
+    }
+    
+    .btn-secondary:hover {
+        background: #e2e8f0;
+        color: #475569;
+    }
+    
+    .no-patients {
+        text-align: center;
+        padding: 60px 20px;
+        color: #64748b;
+    }
+    
+    .no-patients i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 16px;
+    }
+    
+    .back-navigation {
+        margin-bottom: 20px;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .back-btn:hover {
+        background: #f8fafc;
+        color: #1e40af;
+        transform: translateX(-2px);
+    }
+    
+    .back-btn i {
+        font-size: 16px;
+    }
+    
+    @media (max-width: 768px) {
+        .patients-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <!-- Top Navigation Bar -->
+    <div class="top-navbar">
+        <div class="nav-left">
+            <a href="{% url 'doctors:dashboard' %}" class="dashboard-btn">
+                <i class='bx bx-home'></i>
+                Back to Dashboard
+            </a>
+            <div class="nav-title">
+                <div class="nav-title-icon">
+                    <i class='bx bx-user-check'></i>
+                </div>
+                Patient Records
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ user.first_name|first|upper|default:"D" }}
+                </div>
+                <span>Dr. {{ user.doctorprofile.full_name|default:user.first_name|default:user.username }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="header-icon">
+                        <i class='bx bx-user-check'></i>
+                    </div>
+                    <div class="header-text">
+                        <h1>Patient Management</h1>
+                        <p>Comprehensive patient records and medical history management</p>
+                    </div>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ total_patients|default:"0" }}</span>
+                        <div class="stat-label">Total Patients</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <form method="GET" style="margin: 0;">
+                <div class="search-container">
+                    <i class='bx bx-search search-icon'></i>
+                    <input type="text" class="search-input" name="search" value="{{ search_query }}" 
+                           placeholder="Search patients by name, email, or phone...">
+                </div>
+            </form>
+        </div>
+
+        <!-- Patients Section -->
+        <div class="patients-section">
+            <div class="section-title">
+                <i class='bx bx-group'></i>
+                Patient List ({{ patients|length }} patients)
+            </div>
+            
+            {% if patients %}
+            <div class="patients-grid">
+                {% for patient_data in patients %}
+                <div class="patient-card">
+                    <div class="patient-header">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div class="patient-avatar">
+                                {{ patient_data.patient.full_name|first|upper|default:"P" }}
+                            </div>
+                            <div class="patient-info">
+                                <h3>{{ patient_data.patient.full_name|default:"Patient" }}</h3>
+                                <p>Last visit: {{ patient_data.last_visit|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patient Statistics -->
+                    <div class="patient-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ patient_data.total_appointments }}</div>
+                            <div class="stat-label">Visits</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">{{ patient_data.medical_records_count|default:"0" }}</div>
+                            <div class="stat-label">Records</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">
+                                {% if patient_data.patient.age %}{{ patient_data.patient.age }}{% else %}--{% endif %}
+                            </div>
+                            <div class="stat-label">Age</div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="patient-actions">
+                        <button class="btn-action btn-primary" onclick="viewPatientRecords({{ patient_data.patient.id }}, '{{ patient_data.patient.full_name|default:"Patient" }}')">
+                            <i class='bx bx-file-blank'></i> View Records
+                        </button>
+                        <a href="{% url 'doctors:appointments' %}" class="btn-action btn-secondary">
+                            <i class='bx bx-calendar'></i> Schedule
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class='bx bx-user-x'></i>
+                <h3>
+                    {% if search_query %}
+                        No patients found for "{{ search_query }}"
+                    {% else %}
+                        No patients yet
+                    {% endif %}
+                </h3>
+                <p>
+                    {% if search_query %}
+                        Try adjusting your search terms.
+                    {% else %}
+                        Patients will appear here once they book appointments with you.
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Patient Records Modal -->
+<div id="recordsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Patient Records</h2>
+            <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="loadingSpinner" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading patient records...</p>
+            </div>
+            <div id="recordsContent" style="display: none;">
+                <!-- Records will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Modal Styles - Doctor Dashboard Theme */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(16, 24, 40, 0.4);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: #ffffff;
+    margin: 2% auto;
+    width: 95%;
+    max-width: 1200px;
+    max-height: 90vh;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(16, 24, 40, 0.15);
+    overflow: hidden;
+    animation: slideIn 0.3s ease;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none;
+}
+
+.modal-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-header h2::before {
+    content: '👥';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.15);
+    font-size: 18px;
+}
+
+.close {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.close:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.modal-body {
+    padding: 32px;
+    overflow-y: auto;
+    max-height: calc(90vh - 100px);
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    color: #64748b;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e2e8f0;
+    border-top: 3px solid #1e40af;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+/* Records Content Styles - Doctor Dashboard Theme */
+.records-section {
+    margin-bottom: 32px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.section-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    font-size: 16px;
+}
+
+.section-title h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 24px 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fefefe;
+    transition: all 0.2s ease;
+}
+
+.stat-item:nth-child(1) {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-color: #bae6fd;
+}
+
+.stat-item:nth-child(2) {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-color: #bbf7d0;
+}
+
+.stat-item:nth-child(3) {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+    border-color: #c084fc;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: #1e40af;
+}
+
+.stat-item:nth-child(2) .stat-number {
+    color: #166534;
+}
+
+.stat-item:nth-child(3) .stat-number {
+    color: #7c3aed;
+}
+
+.stat-label {
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.records-list, .appointments-list {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.record-item, .appointment-item {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(16, 24, 40, 0.02);
+    transition: all 0.2s ease;
+}
+
+.record-item:hover, .appointment-item:hover {
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+    transform: translateY(-1px);
+}
+
+.record-item:last-child, .appointment-item:last-child {
+    margin-bottom: 0;
+}
+
+.record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.record-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.record-type-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+}
+
+.record-type-icon.lab_report { background: #1e40af; }
+.record-type-icon.prescription { background: #166534; }
+.record-type-icon.scan { background: #7c3aed; }
+.record-type-icon.other { background: #d97706; }
+
+.record-details h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.record-type-badge {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.record-meta {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.record-description {
+    color: #475569;
+    margin: 12px 0;
+    line-height: 1.5;
+}
+
+.record-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.action-btn.primary {
+    background: #1e40af;
+    color: white;
+}
+
+.action-btn.primary:hover {
+    background: #1d4ed8;
+    color: white;
+}
+
+.action-btn.secondary {
+    background: transparent;
+    color: #1e40af;
+    border: 1px solid #1e40af;
+}
+
+.action-btn.secondary:hover {
+    background: #1e40af;
+    color: white;
+}
+
+.appointment-item {
+    background: white;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.appointment-date {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+    font-size: 1rem;
+}
+
+.appointment-time {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.appointment-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.status-completed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-accepted {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #64748b;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #374151;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.status-accepted { background: #bee3f8; color: #1a365d; }
+.status-pending { background: #faf089; color: #744210; }
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #718096;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 5% auto;
+    }
+    
+    .modal-header {
+        padding: 20px;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .stats-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .record-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+</style>
+
+<script>
+// Modal functionality
+function viewPatientRecords(patientId, patientName) {
+    const modal = document.getElementById('recordsModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const recordsContent = document.getElementById('recordsContent');
+    
+    // Set modal title
+    modalTitle.textContent = `${patientName} - Medical Records`;
+    
+    // Show modal and loading state
+    modal.style.display = 'block';
+    loadingSpinner.style.display = 'block';
+    recordsContent.style.display = 'none';
+    
+    // Fetch patient records
+    fetch(`/doctors/patients/${patientId}/records/api/`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Received data:', data);
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            displayRecords(data);
+            loadingSpinner.style.display = 'none';
+            recordsContent.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching records:', error);
+            recordsContent.innerHTML = `
+                <div class="empty-state">
+                    <i class='bx bx-error'></i>
+                    <h3>Error Loading Records</h3>
+                    <p>Unable to load patient records: ${error.message}</p>
+                </div>
+            `;
+            loadingSpinner.style.display = 'none';
+            recordsContent.style.display = 'block';
+        });
+}
+
+function displayRecords(data) {
+    const recordsContent = document.getElementById('recordsContent');
+    
+    let html = `
+        <!-- Patient Statistics -->
+        <div class="records-section">
+            <h3 class="section-title">
+                <div class="section-icon">
+                    <i class='bx bx-chart-bar'></i>
+                </div>
+                Overview
+            </h3>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-number">${data.stats.total_visits}</span>
+                    <span class="stat-label">Total Visits</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">${data.stats.completed_visits}</span>
+                    <span class="stat-label">Completed</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">${data.medical_records.length}</span>
+                    <span class="stat-label">Medical Records</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Medical Records Section
+    html += `
+        <div class="records-section">
+            <h3 class="section-title">
+                <div class="section-icon">
+                    <i class='bx bx-file-blank'></i>
+                </div>
+                Medical Records
+            </h3>
+    `;
+
+    if (data.medical_records.length > 0) {
+        data.medical_records.forEach(record => {
+            const iconMap = {
+                'lab_report': 'bx-test-tube',
+                'prescription': 'bx-plus-medical',
+                'scan': 'bx-scan',
+                'other': 'bx-file'
+            };
+            
+            html += `
+                <div class="record-item">
+                    <div class="record-header">
+                        <div class="record-info">
+                            <div class="record-type-icon ${record.record_type}">
+                                <i class='bx ${iconMap[record.record_type]}'></i>
+                            </div>
+                            <div class="record-details">
+                                <h4>${record.title}</h4>
+                                <div class="record-meta">
+                                    ${record.record_type_display} • ${record.date_created}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="record-actions">
+                            ${record.file_url ? `
+                                <a href="${record.file_url}" class="action-btn primary" target="_blank">
+                                    <i class='bx bx-show'></i> View
+                                </a>
+                                <a href="${record.file_url}" class="action-btn secondary" download>
+                                    <i class='bx bx-download'></i> Download
+                                </a>
+                            ` : `
+                                <span class="action-btn secondary" style="opacity: 0.5;">
+                                    <i class='bx bx-x'></i> No File
+                                </span>
+                            `}
+                        </div>
+                    </div>
+                    ${record.description ? `<div style="margin-top: 12px; color: #4a5568; font-style: italic;">${record.description}</div>` : ''}
+                </div>
+            `;
+        });
+    } else {
+        html += `
+            <div class="empty-state">
+                <i class='bx bx-file-blank'></i>
+                <h3>No Medical Records</h3>
+                <p>This patient hasn't uploaded any medical records yet.</p>
+            </div>
+        `;
+    }
+
+    html += `</div>`;
+
+    // Appointment History Section
+    html += `
+        <div class="records-section">
+            <h3 class="section-title">
+                <div class="section-icon">
+                    <i class='bx bx-calendar'></i>
+                </div>
+                Appointment History
+            </h3>
+    `;
+
+    if (data.appointments.length > 0) {
+        data.appointments.forEach(appointment => {
+            html += `
+                <div class="appointment-item">
+                    <div class="appointment-date">${appointment.date}</div>
+                    <div class="appointment-time">${appointment.time}</div>
+                    <div class="appointment-status status-${appointment.status}">
+                        ${appointment.status_display}
+                    </div>
+                    ${appointment.reason ? `<div style="margin-top: 8px; color: #718096; font-size: 0.9rem;">${appointment.reason}</div>` : ''}
+                </div>
+            `;
+        });
+    } else {
+        html += `
+            <div class="empty-state">
+                <i class='bx bx-calendar-x'></i>
+                <h3>No Appointments</h3>
+                <p>No appointment history found.</p>
+            </div>
+        `;
+    }
+
+    html += `</div>`;
+
+    recordsContent.innerHTML = html;
+}
+
+function closeModal() {
+    document.getElementById('recordsModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('recordsModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+});
+</script>
+
+{% endblock %}

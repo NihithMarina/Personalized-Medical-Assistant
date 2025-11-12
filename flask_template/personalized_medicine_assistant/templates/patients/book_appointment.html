@@ -1,0 +1,652 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book Appointment - PMA{% endblock %}
+
+{% block content %}
+<style>
+    /* Dashboard-consistent styling */
+    .dashboard-section {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 6px 30px rgba(16,24,40,0.06);
+        padding: 32px 28px;
+        margin-bottom: 28px;
+    }
+    
+    .appointment-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+    
+    .header-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        font-size: 22px;
+        box-shadow: 0 4px 12px rgba(16,24,40,0.04);
+    }
+    
+    .page-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #1e40af;
+        margin: 0;
+        line-height: 1.05;
+        letter-spacing: -0.4px;
+    }
+    
+    .page-subtitle {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-top: 6px;
+    }
+    
+    /* Container for better space utilization */
+    .appointment-container {
+        max-width: 95%;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    /* Back navigation */
+    .back-navigation {
+        margin-bottom: 20px;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .back-btn:hover {
+        background: #f8fafc;
+        color: #1e40af;
+        transform: translateX(-2px);
+    }
+    
+    .back-btn i {
+        font-size: 16px;
+    }
+    
+    /* Form styling */
+    .appointment-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .form-input {
+        padding: 16px 20px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+        color: #1e293b;
+        font-family: inherit;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #1e40af;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+    
+    .form-input:disabled {
+        background: #f1f5f9;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+    
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+        font-family: inherit;
+    }
+    
+    /* Select styling */
+    .form-select {
+        padding: 16px 20px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+        color: #1e293b;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-right: 48px;
+    }
+    
+    .form-select:focus {
+        outline: none;
+        border-color: #1e40af;
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+    
+    .form-select:disabled {
+        background-color: #f1f5f9;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+    
+    /* Error message */
+    .error-message {
+        color: #dc2626;
+        font-size: 0.9rem;
+        margin-top: 8px;
+        padding: 12px 16px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        display: none;
+    }
+    
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 32px;
+    }
+    
+    .btn-primary {
+        background: #1e40af;
+        color: #fff;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 4px 16px rgba(30, 64, 175, 0.2);
+        min-width: 200px;
+        justify-content: center;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+        background: #1e3a8a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 64, 175, 0.3);
+    }
+    
+    .btn-primary:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .btn-secondary {
+        background: #fff;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .btn-secondary:hover {
+        border-color: #cbd5e1;
+        color: #475569;
+        transform: translateY(-1px);
+    }
+    
+    /* Loading state */
+    .loading-state {
+        display: none;
+        text-align: center;
+        padding: 20px;
+        color: #64748b;
+    }
+    
+    .loading-spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #e2e8f0;
+        border-top: 2px solid #1e40af;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 12px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Success message */
+    .success-message {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        text-align: center;
+        color: #166534;
+        font-weight: 600;
+        display: none;
+    }
+    
+    /* Info cards */
+    .info-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+    
+    .info-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .info-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        margin: 0 auto 12px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+    }
+    
+    .info-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    
+    .info-card-text {
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .appointment-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+        
+        .appointment-form {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .appointment-container {
+            max-width: 100%;
+            padding: 0 0.5rem;
+        }
+        
+        .info-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Responsive adjustments */
+    @media (min-width: 1024px) {
+        .appointment-container {
+            max-width: 1200px;
+            padding: 0 2rem;
+        }
+    }
+    
+    @media (min-width: 1440px) {
+        .appointment-container {
+            max-width: 1400px;
+        }
+    }
+</style>
+
+<div class="appointment-container">
+    <!-- Back Navigation -->
+    <div class="back-navigation">
+        <a href="{% url 'patients:dashboard' %}" class="back-btn">
+            <i class='bx bx-arrow-back'></i>
+            Back to Dashboard
+        </a>
+    </div>
+    
+    <!-- Header Section -->
+    <div class="dashboard-section">
+        <div class="appointment-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class='bx bx-calendar-plus'></i>
+                </div>
+                <div>
+                    <h1 class="page-title">Book Appointment</h1>
+                    <p class="page-subtitle">Schedule your consultation with our healthcare professionals</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            <i class='bx bx-check-circle' style="font-size: 24px; margin-right: 8px;"></i>
+            Your appointment has been successfully booked!
+        </div>
+
+        <!-- Info Cards -->
+        <div class="info-cards">
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i class='bx bx-time'></i>
+                </div>
+                <div class="info-card-title">Flexible Scheduling</div>
+                <div class="info-card-text">Choose from available time slots that work best for your schedule</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i class='bx bx-user-check'></i>
+                </div>
+                <div class="info-card-title">Expert Doctors</div>
+                <div class="info-card-text">Consult with qualified healthcare professionals</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i class='bx bx-shield-check'></i>
+                </div>
+                <div class="info-card-title">Secure & Private</div>
+                <div class="info-card-text">Your health information is kept confidential and secure</div>
+            </div>
+        </div>
+
+        <!-- Appointment Form -->
+        <form method="post" class="appointment-form" id="appointmentForm">
+            {% csrf_token %}
+            
+            <div class="form-group full-width">
+                <label for="reason" class="form-label">
+                    <i class='bx bx-edit' style="color: #1e40af;"></i>
+                    Reason for Appointment
+                </label>
+                <textarea 
+                    name="reason" 
+                    id="reason" 
+                    class="form-input form-textarea" 
+                    required 
+                    placeholder="Please describe your symptoms, concerns, or the reason for your visit in detail..."
+                ></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="date" class="form-label">
+                    <i class='bx bx-calendar' style="color: #1e40af;"></i>
+                    Preferred Date
+                </label>
+                <input 
+                    type="date" 
+                    name="appointment_date" 
+                    id="date" 
+                    class="form-input" 
+                    required 
+                    min="{{ today|date:'Y-m-d' }}"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="time" class="form-label">
+                    <i class='bx bx-time-five' style="color: #1e40af;"></i>
+                    Preferred Time
+                </label>
+                <input 
+                    type="time" 
+                    name="appointment_time" 
+                    id="time" 
+                    class="form-input" 
+                    required
+                >
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="doctor" class="form-label">
+                    <i class='bx bx-user-check' style="color: #1e40af;"></i>
+                    Select Doctor
+                </label>
+                <select name="doctor" id="doctor" class="form-select" required disabled>
+                    <option value="" disabled selected>First select date and time to see available doctors</option>
+                </select>
+                <div class="error-message" id="noDoctorsMsg">
+                    <i class='bx bx-info-circle'></i>
+                    No doctors are available for the selected date and time. Please choose a different slot.
+                </div>
+                <div class="loading-state" id="doctorLoading">
+                    <div class="loading-spinner"></div>
+                    Checking doctor availability...
+                </div>
+            </div>
+        </form>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button type="submit" form="appointmentForm" class="btn-primary" id="bookBtn" disabled>
+                <i class='bx bx-calendar-plus'></i>
+                <span id="bookBtnText">Book Appointment</span>
+            </button>
+            <a href="{% url 'patients:appointments' %}" class="btn-secondary">
+                <i class='bx bx-list-ul'></i>
+                View My Appointments
+            </a>
+        </div>
+    </div>
+</div>
+<script>
+    // Set minimum date to today
+    document.getElementById('date').min = new Date().toISOString().split('T')[0];
+    
+    function fetchAvailableDoctors() {
+        var date = document.getElementById('date').value;
+        var timeInput = document.getElementById('time').value;
+        var doctorSelect = document.getElementById('doctor');
+        var noDoctorsMsg = document.getElementById('noDoctorsMsg');
+        var doctorLoading = document.getElementById('doctorLoading');
+        var bookBtn = document.getElementById('bookBtn');
+        
+        // Show loading state
+        doctorLoading.style.display = 'block';
+        noDoctorsMsg.style.display = 'none';
+        
+        // Ensure time is always sent as HH:MM (24-hour)
+        var time = '';
+        if (timeInput) {
+            var timeParts = timeInput.split(':');
+            if (timeParts.length === 2) {
+                // Pad hour and minute if needed
+                var hour = timeParts[0].padStart(2, '0');
+                var minute = timeParts[1].padStart(2, '0');
+                time = hour + ':' + minute;
+            }
+        }
+        
+        if (date && time) {
+            fetch(`/patients/appointments/available-doctors/?date=${date}&time=${time}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading state
+                    doctorLoading.style.display = 'none';
+                    
+                    if (window && window.console) {
+                        console.debug('Available doctors debug:', data.debug);
+                    }
+                    
+                    doctorSelect.innerHTML = '';
+                    
+                    if (data.doctors.length > 0) {
+                        var defaultOption = document.createElement('option');
+                        defaultOption.value = '';
+                        defaultOption.text = 'Select a doctor';
+                        defaultOption.disabled = true;
+                        defaultOption.selected = true;
+                        doctorSelect.appendChild(defaultOption);
+                        
+                        data.doctors.forEach(function(doc) {
+                            var opt = document.createElement('option');
+                            opt.value = doc.id;
+                            opt.text = `Dr. ${doc.name}${doc.specialization ? ' - ' + doc.specialization : ''}`;
+                            doctorSelect.appendChild(opt);
+                        });
+                        
+                        doctorSelect.disabled = false;
+                        noDoctorsMsg.style.display = 'none';
+                        updateBookButtonState();
+                    } else {
+                        var noOpt = document.createElement('option');
+                        noOpt.value = '';
+                        noOpt.text = 'No doctors available';
+                        noOpt.disabled = true;
+                        noOpt.selected = true;
+                        doctorSelect.appendChild(noOpt);
+                        
+                        doctorSelect.disabled = true;
+                        noDoctorsMsg.style.display = 'block';
+                        bookBtn.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching doctors:', error);
+                    doctorLoading.style.display = 'none';
+                    noDoctorsMsg.style.display = 'block';
+                    noDoctorsMsg.textContent = 'Error loading doctors. Please try again.';
+                    bookBtn.disabled = true;
+                });
+        } else {
+            // Hide loading state
+            doctorLoading.style.display = 'none';
+            
+            doctorSelect.innerHTML = '';
+            var defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.text = 'First select date and time to see available doctors';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            doctorSelect.appendChild(defaultOption);
+            
+            doctorSelect.disabled = true;
+            noDoctorsMsg.style.display = 'none';
+            bookBtn.disabled = true;
+        }
+    }
+    
+    function updateBookButtonState() {
+        var reason = document.getElementById('reason').value.trim();
+        var date = document.getElementById('date').value;
+        var time = document.getElementById('time').value;
+        var doctor = document.getElementById('doctor').value;
+        var bookBtn = document.getElementById('bookBtn');
+        
+        if (reason && date && time && doctor) {
+            bookBtn.disabled = false;
+        } else {
+            bookBtn.disabled = true;
+        }
+    }
+    
+    // Event listeners
+    document.getElementById('date').addEventListener('change', fetchAvailableDoctors);
+    document.getElementById('time').addEventListener('change', fetchAvailableDoctors);
+    document.getElementById('doctor').addEventListener('change', updateBookButtonState);
+    document.getElementById('reason').addEventListener('input', updateBookButtonState);
+    
+    // Form submission handling
+    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+        var bookBtn = document.getElementById('bookBtn');
+        var bookBtnText = document.getElementById('bookBtnText');
+        
+        // Show loading state on button
+        bookBtn.disabled = true;
+        bookBtnText.textContent = 'Booking...';
+        
+        // Note: The form will submit normally, this just provides visual feedback
+    });
+    
+    // Initialize button state
+    updateBookButtonState();
+</script>
+{% endblock %}

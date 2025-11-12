@@ -1,0 +1,1182 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Disease Prediction - PMA{% endblock %}
+
+{% block content %}
+<style>
+    /* Dashboard-consistent styling */
+    .dashboard-section {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 6px 30px rgba(16,24,40,0.06);
+        padding: 28px 22px;
+        margin-bottom: 28px;
+    }
+    
+    .prediction-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+    
+    .header-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        font-size: 22px;
+        box-shadow: 0 4px 12px rgba(16,24,40,0.04);
+    }
+    
+    .page-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #1e40af;
+        margin: 0;
+        line-height: 1.05;
+        letter-spacing: -0.4px;
+    }
+    
+    .page-subtitle {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-top: 6px;
+    }
+    
+    /* Section styling */
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .section-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        font-size: 14px;
+    }
+    
+    /* Symptom search */
+    .symptom-search {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 16px 20px 16px 56px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+        color: #1e293b;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #1e40af;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 20px;
+    }
+    
+    /* Categories */
+    .symptom-categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .category-btn {
+        padding: 10px 18px;
+        border: 2px solid #e2e8f0;
+        border-radius: 25px;
+        background: #fff;
+        color: #64748b;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .category-btn:hover {
+        border-color: #1e40af;
+        color: #1e40af;
+        background: #f8fafc;
+    }
+    
+    .category-btn.active {
+        background: #1e40af;
+        color: #fff;
+        border-color: #1e40af;
+    }
+    
+    /* Symptom grid - optimized for better space utilization */
+    .symptom-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    /* Responsive grid adjustments */
+    @media (min-width: 768px) {
+        .symptom-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .symptom-grid {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+    }
+    
+    @media (min-width: 1200px) {
+        .symptom-grid {
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        }
+    }
+    
+    .symptom-chip {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        font-weight: 600;
+        color: #64748b;
+        position: relative;
+    }
+    
+    .symptom-chip:hover {
+        border-color: #1e40af;
+        color: #1e40af;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
+    }
+    
+    .symptom-chip.selected {
+        background: #1e40af;
+        color: #fff;
+        border-color: #1e40af;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(30, 64, 175, 0.25);
+    }
+    
+    /* Selected symptoms */
+    .selected-symptoms {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid #bae6fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        min-height: 80px;
+    }
+    
+    .selected-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+    
+    .selected-title {
+        font-weight: 700;
+        color: #0369a1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .selected-count {
+        background: #0369a1;
+        color: #fff;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .selected-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .selected-item {
+        background: #0369a1;
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .remove-selected {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: #fff;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-predict {
+        background: #1e40af;
+        color: #fff;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 4px 16px rgba(30, 64, 175, 0.2);
+    }
+    
+    .btn-predict:hover {
+        background: #1e3a8a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 64, 175, 0.3);
+    }
+    
+    .btn-predict:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .btn-clear {
+        background: #fff;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-clear:hover {
+        border-color: #cbd5e1;
+        color: #475569;
+        transform: translateY(-1px);
+    }
+    
+    /* Loading state */
+    .loading-container {
+        display: none;
+        text-align: center;
+        padding: 40px 20px;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #e2e8f0;
+        border-top: 4px solid #1e40af;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    
+    .loading-subtitle {
+        color: #64748b;
+    }
+    
+    /* Results */
+    .results-container {
+        display: none;
+        animation: fadeInUp 0.6s ease;
+    }
+    
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .result-card {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: 1px solid #bbf7d0;
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+    
+    .result-disease {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #166534;
+        margin-bottom: 12px;
+    }
+    
+    .confidence-badge {
+        display: inline-block;
+        background: #059669;
+        color: #fff;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+    
+    /* Recommendations - optimized for better space utilization */
+    .recommendations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 28px;
+    }
+    
+    /* Responsive recommendations grid */
+    @media (min-width: 1024px) {
+        .recommendations-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+    }
+    
+    @media (min-width: 1200px) {
+        .recommendations-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    
+    .recommendation-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 18px rgba(16,24,40,0.04);
+        padding: 24px;
+        border: 1px solid #f1f5f9;
+        transition: transform 0.3s ease;
+    }
+    
+    .recommendation-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(16,24,40,0.08);
+    }
+    
+    .rec-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .rec-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        margin-right: 12px;
+    }
+    
+    .rec-icon.diet {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #d97706;
+    }
+    
+    .rec-icon.avoid {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #dc2626;
+    }
+    
+    .rec-icon.medicine {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #059669;
+    }
+    
+    .rec-icon.hydration {
+        background: linear-gradient(135deg, #cffafe 0%, #a7f3d0 100%);
+        color: #0891b2;
+    }
+    
+    .rec-icon.notes {
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        color: #4338ca;
+    }
+    
+    .rec-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .rec-content {
+        color: #475569;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+    
+    .rec-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .rec-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .rec-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .rec-list li::before {
+        content: '•';
+        color: #059669;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .prediction-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+        
+        .symptom-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-predict, .btn-clear {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .recommendations-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .prediction-container {
+            max-width: 100%;
+            padding: 0 0.5rem;
+        }
+        
+        .symptom-grid {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+        }
+    }
+    
+    /* Improved container for better space utilization */
+    .prediction-container {
+        max-width: 95%;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    /* Back navigation */
+    .back-navigation {
+        margin-bottom: 20px;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .back-btn:hover {
+        background: #f8fafc;
+        color: #1e40af;
+        transform: translateX(-2px);
+    }
+    
+    .back-btn i {
+        font-size: 16px;
+    }
+    
+    /* Responsive adjustments */
+    @media (min-width: 1024px) {
+        .prediction-container {
+            max-width: 1200px;
+            padding: 0 2rem;
+        }
+    }
+    
+    @media (min-width: 1440px) {
+        .prediction-container {
+            max-width: 1400px;
+        }
+    }
+</style>
+
+<div class="prediction-container">
+    <!-- Back Navigation -->
+    <div class="back-navigation">
+        <a href="{% url 'patients:dashboard' %}" class="back-btn">
+            <i class='bx bx-arrow-back'></i>
+            Back to Dashboard
+        </a>
+    </div>
+    
+    <!-- Header Section -->
+    <div class="dashboard-section">
+        <div class="prediction-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class='bx bx-brain'></i>
+                </div>
+                <div>
+                    <h1 class="page-title">Disease Prediction</h1>
+                    <p class="page-subtitle">Get personalized health insights based on your symptoms</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Symptom Input Section -->
+        <div class="symptom-input-section">
+            <h2 class="section-title">
+                <div class="section-icon">
+                    <i class='bx bx-list-ul'></i>
+                </div>
+                Select Your Symptoms
+            </h2>
+
+            <!-- Search Input -->
+            <div class="symptom-search">
+                <i class='bx bx-search search-icon'></i>
+                <input type="text" class="search-input" id="symptomSearch" placeholder="Search symptoms (e.g., fever, headache, cough...)">
+            </div>
+
+            <!-- Categories -->
+            <div class="symptom-categories">
+                <button class="category-btn active" data-category="all">
+                    <i class='bx bx-grid-alt'></i>
+                    All Symptoms
+                </button>
+                <button class="category-btn" data-category="general">
+                    <i class='bx bx-body'></i>
+                    General
+                </button>
+                <button class="category-btn" data-category="respiratory">
+                    <i class='bx bx-wind'></i>
+                    Respiratory
+                </button>
+                <button class="category-btn" data-category="digestive">
+                    <i class='bx bx-food-menu'></i>
+                    Digestive
+                </button>
+                <button class="category-btn" data-category="neurological">
+                    <i class='bx bx-brain'></i>
+                    Neurological
+                </button>
+                <button class="category-btn" data-category="other">
+                    <i class='bx bx-dots-horizontal'></i>
+                    Other
+                </button>
+            </div>
+
+            <!-- Selected Symptoms Display -->
+            <div class="selected-symptoms" id="selectedSymptomsContainer">
+                <div class="selected-header">
+                    <div class="selected-title">
+                        <i class='bx bx-check-circle'></i>
+                        Selected Symptoms
+                    </div>
+                    <div class="selected-count" id="symptomCount">0 selected</div>
+                </div>
+                <div class="selected-list" id="selectedSymptomsList">
+                    <div style="color: #64748b; font-style: italic;">No symptoms selected yet. Click on symptoms below to add them.</div>
+                </div>
+            </div>
+
+            <!-- Symptom Grid -->
+            <div class="symptom-grid" id="symptomGrid">
+                <!-- Symptoms will be populated here -->
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn-predict" id="predictBtn" onclick="predictDisease()" disabled>
+                    <i class='bx bx-brain'></i>
+                    <span id="predictBtnText">Predict Disease</span>
+                </button>
+                <button class="btn-clear" onclick="clearSymptoms()">
+                    <i class='bx bx-refresh'></i>
+                    Clear All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="dashboard-section loading-container" id="loadingContainer">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Analyzing Your Symptoms...</div>
+        <div class="loading-subtitle">Our AI is analyzing your symptoms to provide the best health insights</div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="dashboard-section results-container" id="resultsContainer">
+        <h2 class="section-title">
+            <div class="section-icon">
+                <i class='bx bx-check-circle'></i>
+            </div>
+            Prediction Results
+        </h2>
+
+        <div class="result-card">
+            <div class="result-disease" id="predictedDisease">Common Cold</div>
+            <div class="confidence-badge" id="confidenceBadge">
+                <i class='bx bx-check-circle'></i>
+                <span id="confidenceScore">85% confidence</span>
+            </div>
+            <p style="color: #059669; font-weight: 600; margin: 0;">
+                Based on your symptoms, this is our AI's best prediction. Please consult a healthcare professional for proper diagnosis.
+            </p>
+        </div>
+
+        <!-- Recommendations Grid -->
+        <div class="recommendations-grid">
+            <!-- Recommended Diet -->
+            <div class="recommendation-card">
+                <div class="rec-header">
+                    <div class="rec-icon diet">
+                        <i class='bx bx-restaurant'></i>
+                    </div>
+                    <h3 class="rec-title">Recommended Diet</h3>
+                </div>
+                <div class="rec-content" id="dietRecommendations">
+                    <ul class="rec-list">
+                        <li>Vitamin C rich foods (oranges, kiwi, bell peppers)</li>
+                        <li>Warm soups and broths</li>
+                        <li>Ginger and honey tea</li>
+                        <li>Light, easily digestible meals</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Foods to Avoid -->
+            <div class="recommendation-card">
+                <div class="rec-header">
+                    <div class="rec-icon avoid">
+                        <i class='bx bx-x-circle'></i>
+                    </div>
+                    <h3 class="rec-title">Foods to Avoid</h3>
+                </div>
+                <div class="rec-content" id="avoidRecommendations">
+                    <ul class="rec-list">
+                        <li>Dairy products (may increase mucus)</li>
+                        <li>Processed and fried foods</li>
+                        <li>Excessive sugar and sweets</li>
+                        <li>Alcohol and caffeinated drinks</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Medicine Recommendations -->
+            <div class="recommendation-card">
+                <div class="rec-header">
+                    <div class="rec-icon medicine">
+                        <i class='bx bx-plus-medical'></i>
+                    </div>
+                    <h3 class="rec-title">Medicine Recommendations</h3>
+                </div>
+                <div class="rec-content" id="medicineRecommendations">
+                    <ul class="rec-list">
+                        <li>Consult a doctor for proper medication</li>
+                        <li>Follow prescribed dosage</li>
+                        <li>Complete the full course</li>
+                        <li>Monitor for side effects</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Medical Notes -->
+            <div class="recommendation-card">
+                <div class="rec-header">
+                    <div class="rec-icon notes">
+                        <i class='bx bx-notepad'></i>
+                    </div>
+                    <h3 class="rec-title">Important Notes</h3>
+                </div>
+                <div class="rec-content" id="medicalNotes">
+                    <ul class="rec-list">
+                        <li>Rest and get adequate sleep</li>
+                        <li>Monitor temperature regularly</li>
+                        <li>Consult a doctor if symptoms worsen</li>
+                        <li>This is AI prediction, not medical diagnosis</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Actions -->
+        <div class="action-buttons" style="justify-content: center; margin-top: 28px;">
+            <button class="btn-predict" onclick="bookAppointment()" style="background: #059669;">
+                <i class='bx bx-calendar-plus'></i>
+                Book Appointment
+            </button>
+            <button class="btn-clear" onclick="newPrediction()">
+                <i class='bx bx-refresh'></i>
+                New Prediction
+            </button>
+        </div>
+    </div>
+
+    <!-- Recent Predictions -->
+    {% if recent_predictions %}
+    <div class="dashboard-section">
+        <h2 class="section-title">
+            <div class="section-icon">
+                <i class='bx bx-history'></i>
+            </div>
+            Recent Predictions
+        </h2>
+        
+        {% for prediction in recent_predictions %}
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="font-weight: 600; color: #1e293b;">{{ prediction.predicted_disease }}</div>
+                <div style="color: #64748b; font-size: 0.85rem;">{{ prediction.created_at|date:"M d, Y at H:i" }}</div>
+            </div>
+            <div class="confidence-badge" style="font-size: 0.8rem; padding: 4px 12px;">
+                {{ prediction.confidence_score|floatformat:0 }}%
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Get symptoms from backend (from your Excel dataset)
+const availableSymptoms = {{ available_symptoms|safe }};
+
+// Organize symptoms by category (basic categorization)
+const symptomsDatabase = {
+    general: [],
+    respiratory: [],
+    digestive: [],
+    neurological: [],
+    other: []
+};
+
+// Auto-categorize symptoms from your Excel dataset
+availableSymptoms.forEach(symptom => {
+    const symptomLower = symptom.toLowerCase();
+    if (symptomLower.includes('fever') || symptomLower.includes('fatigue') || symptomLower.includes('chill') || 
+        symptomLower.includes('body') || symptomLower.includes('sweat') || symptomLower.includes('weight') || 
+        symptomLower.includes('appetite')) {
+        symptomsDatabase.general.push(symptom);
+    } else if (symptomLower.includes('cough') || symptomLower.includes('breath') || symptomLower.includes('chest') || 
+               symptomLower.includes('throat') || symptomLower.includes('nose') || symptomLower.includes('congestion') || 
+               symptomLower.includes('wheez')) {
+        symptomsDatabase.respiratory.push(symptom);
+    } else if (symptomLower.includes('nausea') || symptomLower.includes('vomit') || symptomLower.includes('diarrhea') || 
+               symptomLower.includes('constipation') || symptomLower.includes('abdominal') || symptomLower.includes('stomach') || 
+               symptomLower.includes('bloat') || symptomLower.includes('heartburn')) {
+        symptomsDatabase.digestive.push(symptom);
+    } else if (symptomLower.includes('head') || symptomLower.includes('dizz') || symptomLower.includes('confusion') || 
+               symptomLower.includes('memory') || symptomLower.includes('seizure') || symptomLower.includes('numb') || 
+               symptomLower.includes('vision')) {
+        symptomsDatabase.neurological.push(symptom);
+    } else {
+        symptomsDatabase.other.push(symptom);
+    }
+});
+
+// If no symptoms in other categories, put all in general
+if (symptomsDatabase.general.length === 0 && symptomsDatabase.respiratory.length === 0 && 
+    symptomsDatabase.digestive.length === 0 && symptomsDatabase.neurological.length === 0) {
+    symptomsDatabase.general = availableSymptoms;
+}
+
+// Global variables
+let selectedSymptoms = [];
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    loadSymptoms('all');
+    setupEventListeners();
+});
+
+// Setup event listeners
+function setupEventListeners() {
+    // Category buttons
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            loadSymptoms(this.dataset.category);
+        });
+    });
+
+    // Search functionality
+    document.getElementById('symptomSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        filterSymptoms(searchTerm);
+    });
+}
+
+// Load symptoms based on category
+function loadSymptoms(category) {
+    const symptomGrid = document.getElementById('symptomGrid');
+    symptomGrid.innerHTML = '';
+    
+    let symptomsToShow = [];
+    if (category === 'all') {
+        Object.values(symptomsDatabase).forEach(categorySymptoms => {
+            symptomsToShow = symptomsToShow.concat(categorySymptoms);
+        });
+    } else {
+        symptomsToShow = symptomsDatabase[category] || [];
+    }
+    
+    symptomsToShow.forEach(symptom => {
+        const symptomChip = createSymptomChip(symptom);
+        symptomGrid.appendChild(symptomChip);
+    });
+}
+
+// Create symptom chip element
+function createSymptomChip(symptom) {
+    const chip = document.createElement('div');
+    chip.className = 'symptom-chip';
+    chip.textContent = symptom;
+    chip.addEventListener('click', () => toggleSymptom(symptom, chip));
+    
+    if (selectedSymptoms.includes(symptom)) {
+        chip.classList.add('selected');
+    }
+    
+    return chip;
+}
+
+// Toggle symptom selection
+function toggleSymptom(symptom, chipElement) {
+    const index = selectedSymptoms.indexOf(symptom);
+    
+    if (index === -1) {
+        selectedSymptoms.push(symptom);
+        chipElement.classList.add('selected');
+    } else {
+        selectedSymptoms.splice(index, 1);
+        chipElement.classList.remove('selected');
+    }
+    
+    updateSelectedDisplay();
+    updatePredictButton();
+}
+
+// Update selected symptoms display
+function updateSelectedDisplay() {
+    const container = document.getElementById('selectedSymptomsList');
+    const countElement = document.getElementById('symptomCount');
+    
+    countElement.textContent = selectedSymptoms.length + ' selected';
+    
+    if (selectedSymptoms.length === 0) {
+        container.innerHTML = '<div style="color: #64748b; font-style: italic;">No symptoms selected yet. Click on symptoms below to add them.</div>';
+        return;
+    }
+    
+    container.innerHTML = selectedSymptoms.map(symptom => 
+        '<div class="selected-item">' + symptom + 
+        '<button class="remove-selected" onclick="removeSelectedSymptom(\'' + symptom + '\')">×</button></div>'
+    ).join('');
+}
+
+// Remove selected symptom
+function removeSelectedSymptom(symptom) {
+    const index = selectedSymptoms.indexOf(symptom);
+    if (index !== -1) {
+        selectedSymptoms.splice(index, 1);
+        
+        const chips = document.querySelectorAll('.symptom-chip');
+        chips.forEach(chip => {
+            if (chip.textContent.trim() === symptom) {
+                chip.classList.remove('selected');
+            }
+        });
+        
+        updateSelectedDisplay();
+        updatePredictButton();
+    }
+}
+
+// Update predict button state
+function updatePredictButton() {
+    const predictBtn = document.getElementById('predictBtn');
+    predictBtn.disabled = selectedSymptoms.length === 0;
+}
+
+// Filter symptoms based on search
+function filterSymptoms(searchTerm) {
+    const chips = document.querySelectorAll('.symptom-chip');
+    chips.forEach(chip => {
+        const symptomName = chip.textContent.toLowerCase();
+        if (symptomName.includes(searchTerm)) {
+            chip.style.display = 'block';
+        } else {
+            chip.style.display = 'none';
+        }
+    });
+}
+
+// Clear all symptoms
+function clearSymptoms() {
+    selectedSymptoms = [];
+    document.querySelectorAll('.symptom-chip').forEach(chip => {
+        chip.classList.remove('selected');
+    });
+    updateSelectedDisplay();
+    updatePredictButton();
+    document.getElementById('symptomSearch').value = '';
+    filterSymptoms('');
+}
+
+// Predict disease
+async function predictDisease() {
+    if (selectedSymptoms.length === 0) {
+        alert('Please select at least one symptom.');
+        return;
+    }
+    
+    showLoading();
+    
+    try {
+        const response = await fetch('/patients/predict-disease/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                symptoms: selectedSymptoms
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            setTimeout(() => {
+                hideLoading();
+                showResults(result);
+            }, 2000);
+        } else {
+            throw new Error(result.error || 'Prediction failed');
+        }
+    } catch (error) {
+        console.error('Prediction error:', error);
+        hideLoading();
+        alert('Sorry, there was an error analyzing your symptoms. Please try again.');
+    }
+}
+
+// Show loading state
+function showLoading() {
+    document.getElementById('loadingContainer').style.display = 'block';
+    document.getElementById('resultsContainer').style.display = 'none';
+    
+    const predictBtn = document.getElementById('predictBtn');
+    const btnText = document.getElementById('predictBtnText');
+    predictBtn.disabled = true;
+    btnText.textContent = 'Analyzing...';
+}
+
+// Hide loading state
+function hideLoading() {
+    document.getElementById('loadingContainer').style.display = 'none';
+    
+    const predictBtn = document.getElementById('predictBtn');
+    const btnText = document.getElementById('predictBtnText');
+    predictBtn.disabled = false;
+    btnText.textContent = 'Predict Disease';
+}
+
+// Show results
+function showResults(result) {
+    const resultsContainer = document.getElementById('resultsContainer');
+    resultsContainer.style.display = 'block';
+    
+    document.getElementById('predictedDisease').textContent = result.predicted_disease || 'Unknown Condition';
+    
+    const confidence = Math.round(result.confidence || 0);
+    document.getElementById('confidenceScore').textContent = confidence + '% confidence';
+    
+    const badge = document.getElementById('confidenceBadge');
+    if (confidence >= 80) {
+        badge.style.background = '#059669';
+    } else if (confidence >= 60) {
+        badge.style.background = '#d97706';
+    } else {
+        badge.style.background = '#dc2626';
+    }
+    
+    // Update diet recommendations from dataset
+    if (result.diet_recommendation) {
+        const dietItems = result.diet_recommendation.split(',').map(item => item.trim());
+        const dietRecommendations = document.getElementById('dietRecommendations');
+        dietRecommendations.innerHTML = '<ul class="rec-list"></ul>';
+        const dietList = dietRecommendations.querySelector('.rec-list');
+        dietItems.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            dietList.appendChild(li);
+        });
+    }
+    
+    // Update medicine recommendations from dataset
+    if (result.medicine_recommendation) {
+        const medicineItems = result.medicine_recommendation.split(',').map(item => item.trim());
+        const medicineRecommendations = document.getElementById('medicineRecommendations');
+        medicineRecommendations.innerHTML = '<ul class="rec-list"></ul>';
+        const medicineList = medicineRecommendations.querySelector('.rec-list');
+        medicineItems.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            medicineList.appendChild(li);
+        });
+    }
+    
+    // Update foods to avoid from dataset
+    if (result.foods_to_avoid) {
+        const avoidItems = result.foods_to_avoid.split(',').map(item => item.trim());
+        const avoidRecommendations = document.getElementById('avoidRecommendations');
+        avoidRecommendations.innerHTML = '<ul class="rec-list"></ul>';
+        const avoidList = avoidRecommendations.querySelector('.rec-list');
+        avoidItems.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            avoidList.appendChild(li);
+        });
+    }
+    
+    resultsContainer.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Utility function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Book appointment function
+function bookAppointment() {
+    window.location.href = '/patients/appointments/book/';
+}
+
+// New prediction function
+function newPrediction() {
+    document.getElementById('resultsContainer').style.display = 'none';
+    clearSymptoms();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+{% endblock %}

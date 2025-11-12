@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .availability-section {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        padding: 32px 24px;
+        margin: 40px auto;
+        max-width: 700px;
+    }
+    .availability-header {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d6cdf;
+        margin-bottom: 24px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    .availability-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        background: #f9fafb;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(45,108,223,0.08);
+    }
+    .availability-table th, .availability-table td {
+        padding: 14px 10px;
+        text-align: left;
+    }
+    .availability-table th {
+        background: #2d6cdf;
+        color: #fff;
+        font-weight: 600;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    .availability-table tr {
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .availability-table tr:last-child {
+        border-bottom: none;
+    }
+    .status-available {
+        color: green;
+        font-weight: 600;
+    }
+    .status-unavailable {
+        color: red;
+        font-weight: 600;
+    }
+</style>
+<div class="availability-section">
+    <div class="availability-header">
+        <i class='bx bx-calendar'></i> Doctor Availability
+    </div>
+    <table class="availability-table">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for day, label in weekdays %}
+            <tr>
+                <td>{{ label }}</td>
+                {% if availability and availability.day %}
+                    <td>{{ availability.day.start_time|default:'Not Set' }}</td>
+                    <td>{{ availability.day.end_time|default:'Not Set' }}</td>
+                    <td>{% if availability.day.is_active %}<span class="status-available">Available</span>{% else %}<span class="status-unavailable">Not Available</span>{% endif %}</td>
+                {% else %}
+                    <td>Not Set</td>
+                    <td>Not Set</td>
+                    <td><span class="status-unavailable">Not Available</span></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

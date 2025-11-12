@@ -1,0 +1,118 @@
+@startuml PMA_UseCase_Diagram
+' Personalized Medical Assistant - Use Case Diagram
+' Generated: November 7, 2025
+' To use in draw.io: Arrange → Insert → Advanced → PlantUML
+
+title Personalized Medical Assistant - Use Case Diagram
+
+' Colorful styling - Compact for Word
+skinparam dpi 150
+skinparam defaultFontSize 8
+skinparam linetype ortho
+
+skinparam actor {
+    BackgroundColor LightYellow
+    BorderColor Orange
+    BorderThickness 2
+    FontSize 8
+}
+
+skinparam usecase {
+    BackgroundColor LightBlue
+    BorderColor DarkBlue
+    BorderThickness 1
+    FontSize 7
+}
+
+skinparam rectangle {
+    BackgroundColor LightCyan
+    BorderColor DarkCyan
+    BorderThickness 2
+    FontSize 8
+    FontStyle bold
+}
+
+skinparam arrow {
+    Color DarkBlue
+    FontSize 6
+}
+
+skinparam note {
+    BackgroundColor LightGreen
+    BorderColor DarkGreen
+    FontSize 7
+}
+
+' ============ Actors ============
+left to right direction
+
+actor Patient
+actor Doctor
+
+' ============ System Boundary ============
+rectangle "PMA System" {
+    
+    usecase "Login" as UC1
+    usecase "Update Profile" as UC2
+    usecase "Upload Records" as UC3
+    usecase "View History" as UC4
+    usecase "Get Prediction" as UC5
+    usecase "Book Appointment" as UC6
+    usecase "Manage Schedule" as UC7
+    usecase "Messaging" as UC8
+    usecase "Set Reminders" as UC9
+    usecase "Review Patients" as UC10
+    usecase "Add Notes" as UC11
+    
+    ' Force horizontal layout
+    UC1 -[hidden]right- UC2
+    UC2 -[hidden]right- UC3
+    UC3 -[hidden]right- UC4
+    UC4 -[hidden]right- UC5
+    UC5 -[hidden]right- UC6
+    
+    UC6 -[hidden]down- UC7
+    UC7 -[hidden]right- UC8
+    UC8 -[hidden]right- UC9
+    UC9 -[hidden]right- UC10
+    UC10 -[hidden]right- UC11
+}
+
+' ============ Patient Use Cases ============
+Patient --> UC1
+Patient --> UC2
+Patient --> UC3
+Patient --> UC4
+Patient --> UC5
+Patient --> UC6
+Patient --> UC8
+Patient --> UC9
+
+' ============ Doctor Use Cases ============
+Doctor --> UC1
+Doctor --> UC2
+Doctor --> UC4
+Doctor --> UC7
+Doctor --> UC8
+Doctor --> UC10
+Doctor --> UC11
+
+' ============ Notes ============
+note right of Patient
+Patient:
+- Login & Profile
+- Medical Records
+- ML Predictions
+- Appointments
+- Reminders
+end note
+
+note left of Doctor
+Doctor:
+- Login & Profile
+- Patient Data
+- Schedules
+- Clinical Notes
+end note
+
+@enduml

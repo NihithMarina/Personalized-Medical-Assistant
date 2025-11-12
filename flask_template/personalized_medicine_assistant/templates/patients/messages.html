@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Messages - Patient Portal{% endblock %}
+
+{% block content %}
+<style>
+    .messages-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    .messages-header {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(16, 24, 40, 0.08);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1e40af;
+        font-size: 28px;
+    }
+    
+    .header-text h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .header-text p {
+        color: #64748b;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    
+    .messages-list {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(16, 24, 40, 0.08);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .message-item {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1.5rem 0;
+        position: relative;
+    }
+    
+    .message-item:last-child {
+        border-bottom: none;
+    }
+    
+    .message-header-info {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        gap: 1rem;
+    }
+    
+    .message-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .sender-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .sender-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+        font-size: 16px;
+    }
+    
+    .sender-patient {
+        background: #10b981;
+    }
+    
+    .sender-doctor {
+        background: #1e40af;
+    }
+    
+    .sender-name {
+        font-weight: 600;
+        color: #374151;
+    }
+    
+    .message-time {
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+    
+    .message-subject {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .message-content {
+        color: #4b5563;
+        line-height: 1.6;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border-left: 4px solid #e2e8f0;
+    }
+    
+    .message-from-doctor .message-content {
+        border-left-color: #1e40af;
+    }
+    
+    .message-from-patient .message-content {
+        border-left-color: #10b981;
+    }
+    
+    .no-messages {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #64748b;
+    }
+    
+    .no-messages-icon {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-primary {
+        background: #1e40af;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #64748b;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        transition: color 0.3s ease;
+    }
+    
+    .back-link:hover {
+        color: #1e40af;
+        text-decoration: none;
+    }
+    
+    .doctor-info {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .doctor-info strong {
+        color: #1e40af;
+    }
+    
+    @media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .message-header-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="messages-container">
+    <a href="{% url 'patients:dashboard' %}" class="back-link">
+        <i class='bx bx-arrow-back'></i>
+        Back to Dashboard
+    </a>
+    
+    <div class="messages-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class='bx bx-chat'></i>
+                </div>
+                <div class="header-text">
+                    <h1>Messages</h1>
+                    <p>View your conversation with Dr. {{ doctor.full_name }}</p>
+                </div>
+            </div>
+            <a href="{% url 'patients:send_message' appointment.id %}" class="btn btn-primary">
+                <i class='bx bx-plus'></i> Send New Message
+            </a>
+        </div>
+        
+        <div class="doctor-info">
+            <strong>Doctor:</strong> Dr. {{ doctor.full_name }}<br>
+            <strong>Appointment:</strong> {{ appointment.appointment_date|date:"M d, Y" }} at {{ appointment.appointment_time }}<br>
+            <strong>Status:</strong> {{ appointment.get_status_display }}
+        </div>
+    </div>
+    
+    <div class="messages-list">
+        {% if message_list %}
+            {% for message in message_list %}
+                <div class="message-item message-from-{{ message.sender_type }}">
+                    <div class="message-header-info">
+                        <div class="message-meta">
+                            <div class="sender-info">
+                                <div class="sender-avatar sender-{{ message.sender_type }}">
+                                    {% if message.sender_type == 'doctor' %}
+                                        <i class='bx bx-user-pin'></i>
+                                    {% else %}
+                                        <i class='bx bx-user'></i>
+                                    {% endif %}
+                                </div>
+                                <span class="sender-name">
+                                    {% if message.sender_type == 'doctor' %}
+                                        Dr. {{ message.sender.get_full_name|default:message.sender.username }}
+                                    {% else %}
+                                        {{ message.sender.get_full_name|default:message.sender.username }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="message-time">
+                            {{ message.created_at|date:"M d, Y g:i A" }}
+                        </div>
+                    </div>
+                    
+                    <div class="message-subject">{{ message.subject }}</div>
+                    <div class="message-content">{{ message.content|linebreaks }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-messages">
+                <div class="no-messages-icon">
+                    <i class='bx bx-message-alt-x'></i>
+                </div>
+                <h3>No messages yet</h3>
+                <p>Start a conversation with your doctor about your appointment.</p>
+                <a href="{% url 'patients:send_message' appointment.id %}" class="btn btn-primary">
+                    <i class='bx bx-message-add'></i> Send First Message
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

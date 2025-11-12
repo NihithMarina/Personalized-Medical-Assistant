@@ -1,0 +1,933 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chat - Patient Portal{% endblock %}
+
+{% block content %}
+<style>
+    /* Full Page Chat Interface */
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .chat-page {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: white;
+    }
+    
+    .chat-header {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .chat-header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .back-btn {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .back-btn:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .clear-chat-btn {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .clear-chat-btn:hover {
+        background: rgba(239, 68, 68, 0.3);
+    }
+    
+    .chat-main {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+    }
+    
+    /* Left Sidebar - Doctor List */
+    .doctors-sidebar {
+        width: 350px;
+        background: #f8fafc;
+        border-right: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .sidebar-header {
+        background: white;
+        padding: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .doctors-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.5rem;
+    }
+    
+    .doctor-item {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+    }
+    
+    .doctor-item:hover {
+        border-color: #3b82f6;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    
+    .doctor-item.active {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    
+    .doctor-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    
+    .doctor-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .doctor-name {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+        font-size: 0.95rem;
+    }
+    
+    .doctor-specialty {
+        color: #64748b;
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .last-message {
+        color: #64748b;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .unread-badge {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: #ef4444;
+        color: white;
+        border-radius: 10px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        min-width: 20px;
+        text-align: center;
+    }
+    
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #64748b;
+        padding: 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #cbd5e1;
+    }
+    
+    .empty-state h3 {
+        margin: 0 0 0.5rem 0;
+        color: #475569;
+    }
+    
+    .empty-state p {
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    
+    /* Right Side - Chat Area */
+    .chat-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        position: relative;
+    }
+    
+    .chat-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        display: none;
+    }
+    
+    .chat-container.active {
+        display: flex;
+    }
+    
+    .chat-header-doctor {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: white;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .chat-header-doctor .doctor-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .chat-doctor-info {
+        flex: 1;
+    }
+    
+    .chat-doctor-name {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .chat-doctor-specialty {
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+    
+    .messages-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .message {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.5rem;
+        position: relative;
+        margin-bottom: 0.5rem;
+    }
+    
+    .message.sent {
+        flex-direction: row-reverse;
+    }
+    
+    .message-bubble {
+        max-width: 70%;
+        padding: 0.75rem 1rem;
+        border-radius: 18px;
+        position: relative;
+        word-wrap: break-word;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .message.sent .message-bubble {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+    
+    .message.received .message-bubble {
+        background: white;
+        color: #1e293b;
+        border: 1px solid #e2e8f0;
+        border-bottom-left-radius: 4px;
+    }
+    
+    .message-content {
+        margin-bottom: 0.25rem;
+        line-height: 1.4;
+    }
+    
+    .message-time {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .message.sent .message-time {
+        justify-content: flex-end;
+        color: rgba(255,255,255,0.8);
+    }
+    
+    .message.received .message-time {
+        color: #64748b;
+    }
+    
+    .message-edited {
+        font-style: italic;
+        font-size: 0.65rem;
+    }
+    
+    .message-options {
+        position: absolute;
+        top: -10px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.25rem;
+        display: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        z-index: 10;
+    }
+    
+    .message.sent .message-options {
+        right: 0;
+    }
+    
+    .message.received .message-options {
+        left: 0;
+    }
+    
+    .message:hover .message-options {
+        display: flex;
+        gap: 0.25rem;
+    }
+    
+    .message-option-btn {
+        background: none;
+        border: none;
+        padding: 0.25rem;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #64748b;
+        transition: all 0.2s;
+        font-size: 0.75rem;
+    }
+    
+    .message-option-btn:hover {
+        background: #f1f5f9;
+        color: #1e293b;
+    }
+    
+    .message-option-btn.edit:hover {
+        color: #3b82f6;
+    }
+    
+    .message-option-btn.delete:hover {
+        color: #ef4444;
+    }
+    
+    /* Message Input Area */
+    .message-input-area {
+        padding: 1rem 1.5rem;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .message-form {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-end;
+    }
+    
+    .message-input {
+        flex: 1;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        padding: 0.75rem 1rem;
+        resize: none;
+        max-height: 100px;
+        font-family: inherit;
+        outline: none;
+        transition: all 0.2s;
+    }
+    
+    .message-input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .send-btn {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 50%;
+        cursor: pointer;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+    
+    .send-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    /* Edit Message Modal */
+    .edit-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .edit-modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    }
+    
+    .edit-modal h3 {
+        margin: 0 0 1rem 0;
+        color: #1e293b;
+    }
+    
+    .edit-textarea {
+        width: 100%;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        resize: vertical;
+        min-height: 80px;
+        font-family: inherit;
+        outline: none;
+    }
+    
+    .edit-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .btn-primary {
+        background: #3b82f6;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #2563eb;
+    }
+    
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+    
+    .btn-secondary:hover {
+        background: #e2e8f0;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .doctors-sidebar {
+            width: 100%;
+            display: none;
+        }
+        
+        .doctors-sidebar.mobile-show {
+            display: flex;
+        }
+        
+        .chat-area {
+            display: none;
+        }
+        
+        .chat-area.mobile-show {
+            display: flex;
+        }
+        
+        .chat-header {
+            padding: 1rem;
+        }
+        
+        .chat-header h1 {
+            font-size: 1.25rem;
+        }
+    }
+</style>
+
+<div class="chat-page">
+    <!-- Header -->
+    <div class="chat-header">
+        <h1>
+            <i class='bx bx-message-square-dots'></i>
+            Chat with Doctors
+        </h1>
+        <div class="header-actions">
+            <button class="clear-chat-btn" id="clearChatBtn" onclick="clearChat()">
+                <i class='bx bx-trash'></i>
+                Clear Chat
+            </button>
+            <a href="{% url 'patients:dashboard' %}" class="back-btn">
+                <i class='bx bx-arrow-back'></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <!-- Main Chat Area -->
+    <div class="chat-main">
+        <!-- Left Sidebar - Doctor List -->
+        <div class="doctors-sidebar">
+            <div class="sidebar-header">
+                <i class='bx bx-user-md'></i>
+                Your Doctors
+            </div>
+            <div class="doctors-list">
+                {% for doctor_data in available_doctors %}
+                <div class="doctor-item" onclick="selectDoctor({{ doctor_data.doctor.id }}, '{{ doctor_data.doctor.full_name }}', '{{ doctor_data.doctor.specialization }}')">
+                    <div class="doctor-avatar">
+                        {{ doctor_data.doctor.user.first_name|first|default:"D" }}
+                    </div>
+                    <div class="doctor-info">
+                        <div class="doctor-name">Dr. {{ doctor_data.doctor.full_name }}</div>
+                        <div class="doctor-specialty">{{ doctor_data.doctor.specialization }}</div>
+                        {% if doctor_data.latest_message %}
+                        <div class="last-message">
+                            {% if doctor_data.latest_message.sender == request.user %}You: {% endif %}
+                            {{ doctor_data.latest_message.content|truncatechars:30 }}
+                        </div>
+                        {% else %}
+                        <div class="last-message">Start a conversation</div>
+                        {% endif %}
+                    </div>
+                    {% if doctor_data.unread_count > 0 %}
+                    <div class="unread-badge">{{ doctor_data.unread_count }}</div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class='bx bx-user-x'></i>
+                    <h3>No Doctors Available</h3>
+                    <p>You don't have any accepted appointments yet. Book an appointment to start chatting with doctors.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Right Side - Chat Area -->
+        <div class="chat-area">
+            <div id="welcome-state" class="empty-state">
+                <i class='bx bx-message-square-dots'></i>
+                <h3>Welcome to Patient Chat</h3>
+                <p>Select a doctor from the left to start a conversation.<br>You can only chat with doctors from your accepted appointments.</p>
+            </div>
+            
+            <div id="chat-container" class="chat-container">
+                <div class="chat-header-doctor">
+                    <div class="doctor-avatar" id="chat-doctor-avatar">D</div>
+                    <div class="chat-doctor-info">
+                        <div class="chat-doctor-name" id="chat-doctor-name">Dr. Name</div>
+                        <div class="chat-doctor-specialty" id="chat-doctor-specialty">Specialty</div>
+                    </div>
+                </div>
+                
+                <div class="messages-container" id="messages-container">
+                    <!-- Messages will be loaded here -->
+                </div>
+                
+                <div class="message-input-area">
+                    <form class="message-form" id="messageForm">
+                        {% csrf_token %}
+                        <textarea class="message-input" id="messageInput" placeholder="Type your message..." rows="1"></textarea>
+                        <button type="submit" class="send-btn">
+                            <i class='bx bx-send'></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Message Modal -->
+<div class="edit-modal" id="editModal">
+    <div class="edit-modal-content">
+        <h3>Edit Message</h3>
+        <textarea class="edit-textarea" id="editTextarea"></textarea>
+        <div class="edit-actions">
+            <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentDoctorId = null;
+let currentMessageId = null;
+
+// Auto-resize textarea
+document.getElementById('messageInput').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+});
+
+function selectDoctor(doctorId, doctorName, doctorSpecialty) {
+    currentDoctorId = doctorId;
+    
+    // Update active state
+    document.querySelectorAll('.doctor-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+    
+    // Show chat container
+    document.getElementById('welcome-state').style.display = 'none';
+    document.getElementById('chat-container').classList.add('active');
+    document.getElementById('clearChatBtn').style.display = 'flex';
+    
+    // Update chat header
+    document.getElementById('chat-doctor-avatar').textContent = doctorName.charAt(3) || 'D';
+    document.getElementById('chat-doctor-name').textContent = doctorName;
+    document.getElementById('chat-doctor-specialty').textContent = doctorSpecialty;
+    
+    // Load messages
+    loadMessages(doctorId);
+}
+
+function loadMessages(doctorId) {
+    fetch(`/patients/chat/messages/${doctorId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('messages-container');
+            container.innerHTML = '';
+            
+            if (data.messages && data.messages.length > 0) {
+                data.messages.forEach(message => {
+                    addMessageToUI(message.content, message.is_sent, message.created_at, message.created_date, message.id, message.is_edited, message.last_edited_at);
+                });
+            } else {
+                container.innerHTML = '<div class="empty-state"><p>No messages yet. Start the conversation!</p></div>';
+            }
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        })
+        .catch(error => {
+            console.error('Error loading messages:', error);
+        });
+}
+
+function addMessageToUI(text, isSent, time = null, date = null, messageId = null, isEdited = false, lastEditedAt = null) {
+    const container = document.getElementById('messages-container');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+    if (messageId) messageDiv.dataset.messageId = messageId;
+    
+    let timeDisplay = time || getCurrentTime();
+    let editedText = isEdited ? '<span class="message-edited">(edited)</span>' : '';
+    
+    let optionsHtml = '';
+    if (isSent && messageId) {
+        optionsHtml = `
+            <div class="message-options">
+                <button class="message-option-btn edit" onclick="editMessage(${messageId}, '${text.replace(/'/g, "\\'")}')">
+                    <i class='bx bx-edit'></i>
+                </button>
+                <button class="message-option-btn delete" onclick="showDeleteOptions(${messageId})">
+                    <i class='bx bx-trash'></i>
+                </button>
+            </div>
+        `;
+    }
+    
+    messageDiv.innerHTML = `
+        ${optionsHtml}
+        <div class="message-bubble">
+            <div class="message-content">${text}</div>
+            <div class="message-time">${timeDisplay} ${editedText}</div>
+        </div>
+    `;
+    
+    // Remove empty state if exists
+    const emptyState = container.querySelector('.empty-state');
+    if (emptyState) {
+        emptyState.remove();
+    }
+    
+    container.appendChild(messageDiv);
+    container.scrollTop = container.scrollHeight;
+}
+
+// Send message
+document.getElementById('messageForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const messageInput = document.getElementById('messageInput');
+    const messageText = messageInput.value.trim();
+    
+    if (!messageText || !currentDoctorId) return;
+    
+    // Add message to UI immediately
+    addMessageToUI(messageText, true, getCurrentTime(), getCurrentDate());
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    
+    // Send to server
+    fetch('/patients/chat/send/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            doctor_id: currentDoctorId,
+            content: messageText
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the last message in UI with the real message ID
+            const messages = document.querySelectorAll('.message.sent');
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage && !lastMessage.dataset.messageId) {
+                lastMessage.dataset.messageId = data.message.id;
+                // Add options to the message
+                const optionsHtml = `
+                    <div class="message-options">
+                        <button class="message-option-btn edit" onclick="editMessage(${data.message.id}, '${messageText.replace(/'/g, "\\'")}')">
+                            <i class='bx bx-edit'></i>
+                        </button>
+                        <button class="message-option-btn delete" onclick="showDeleteOptions(${data.message.id})">
+                            <i class='bx bx-trash'></i>
+                        </button>
+                    </div>
+                `;
+                lastMessage.insertAdjacentHTML('afterbegin', optionsHtml);
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error sending message:', error);
+    });
+});
+
+function editMessage(messageId, currentContent) {
+    currentMessageId = messageId;
+    document.getElementById('editTextarea').value = currentContent;
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+    currentMessageId = null;
+}
+
+function saveEdit() {
+    const newContent = document.getElementById('editTextarea').value.trim();
+    if (!newContent || !currentMessageId) return;
+    
+    fetch(`/patients/chat/edit/${currentMessageId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            content: newContent
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update message in UI
+            const messageDiv = document.querySelector(`[data-message-id="${currentMessageId}"]`);
+            if (messageDiv) {
+                const contentDiv = messageDiv.querySelector('.message-content');
+                const timeDiv = messageDiv.querySelector('.message-time');
+                contentDiv.textContent = newContent;
+                timeDiv.innerHTML = `${timeDiv.textContent.split('(')[0].trim()} <span class="message-edited">(edited)</span>`;
+            }
+            closeEditModal();
+        }
+    })
+    .catch(error => {
+        console.error('Error editing message:', error);
+    });
+}
+
+function showDeleteOptions(messageId) {
+    if (confirm('Delete this message?')) {
+        const deleteType = confirm('Delete for everyone? (Cancel = Delete for me only)') ? 'for_everyone' : 'for_me';
+        deleteMessage(messageId, deleteType);
+    }
+}
+
+function deleteMessage(messageId, deleteType) {
+    fetch(`/patients/chat/delete/${messageId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            delete_type: deleteType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageDiv) {
+                if (deleteType === 'for_everyone') {
+                    // Update content to show deleted message
+                    const contentDiv = messageDiv.querySelector('.message-content');
+                    contentDiv.textContent = 'This message was deleted';
+                    contentDiv.style.fontStyle = 'italic';
+                    contentDiv.style.opacity = '0.7';
+                    // Remove options
+                    const options = messageDiv.querySelector('.message-options');
+                    if (options) options.remove();
+                } else {
+                    // Remove message from UI
+                    messageDiv.remove();
+                }
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting message:', error);
+    });
+}
+
+function clearChat() {
+    if (!currentDoctorId) return;
+    
+    if (confirm('Are you sure you want to clear this chat? This action cannot be undone.')) {
+        fetch(`/patients/chat/clear/${currentDoctorId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('messages-container').innerHTML = '<div class="empty-state"><p>Chat cleared successfully.</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error clearing chat:', error);
+        });
+    }
+}
+
+function getCurrentTime() {
+    const now = new Date();
+    return now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+    });
+}
+
+function getCurrentDate() {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+}
+</script>
+
+{% endblock %}

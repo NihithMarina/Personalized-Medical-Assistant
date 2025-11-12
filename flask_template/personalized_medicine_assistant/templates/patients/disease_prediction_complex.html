@@ -1,0 +1,1550 @@
+{% extends 'base.html' %}
+
+{% block title %}Disease Prediction - PMA{% endblock %}
+
+{% block content %}
+<style>
+    /* Override base template padding for full-width layout */
+    main {
+        padding: 0 !important;
+    }
+    
+    /* Enhanced Disease Prediction Styles */
+    .prediction-container {
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+    }
+    
+    .header-section {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15);
+    }
+    
+    .header-section h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .header-section p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+    
+    /* Search and Controls */
+    .controls-section {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .search-container {
+        position: relative;
+        margin-bottom: 16px;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 12px 16px 12px 48px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.2s;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 18px;
+    }
+    
+    .quick-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
+    }
+    
+    .quick-btn {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .quick-btn:hover {
+        background: #4f46e5;
+        color: white;
+        border-color: #4f46e5;
+    }
+    
+    .quick-btn.emergency {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #dc2626;
+    }
+    
+    .quick-btn.emergency:hover {
+        background: #dc2626;
+        color: white;
+        border-color: #dc2626;
+    }
+    
+    /* Selected Symptoms Display */
+    .selected-symptoms {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        min-height: 100px;
+    }
+    
+    .selected-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .selected-header h3 {
+        margin: 0;
+        color: #1e293b;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .symptom-count {
+        background: #4f46e5;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .selected-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .selected-symptom {
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        color: #3730a3;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+    }
+    
+    .selected-symptom .severity {
+        font-size: 12px;
+        opacity: 0.8;
+        margin-left: 4px;
+    }
+    
+    .selected-symptom .remove-btn {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+    }
+    
+    .selected-symptom .remove-btn:hover {
+        background: #dc2626;
+        color: white;
+    }
+    
+    .no-symptoms {
+        text-align: center;
+        color: #64748b;
+        font-style: italic;
+        padding: 20px;
+    }
+    
+    /* Category Sections */
+    .categories-container {
+        display: grid;
+        gap: 20px;
+    }
+    
+    .category-section {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+    }
+    
+    .category-header {
+        padding: 16px 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.2s;
+        user-select: none;
+    }
+    
+    .category-header:hover {
+        background: #f8fafc;
+    }
+    
+    .category-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .category-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: white;
+    }
+    
+    .category-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .category-count {
+        font-size: 14px;
+        color: #64748b;
+        margin-left: 8px;
+    }
+    
+    .category-toggle {
+        font-size: 20px;
+        color: #64748b;
+        transition: transform 0.2s;
+    }
+    
+    .category-section.collapsed .category-toggle {
+        transform: rotate(-90deg);
+    }
+    
+    .category-content {
+        padding: 0 20px 20px;
+        display: block;
+        transition: all 0.3s ease;
+    }
+    
+    .category-section.collapsed .category-content {
+        display: none;
+    }
+    
+    /* Category Colors */
+    .category-general .category-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .category-respiratory .category-icon { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+    .category-digestive .category-icon { background: linear-gradient(135deg, #10b981, #059669); }
+    .category-neurological .category-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .category-musculoskeletal .category-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .category-cardiovascular .category-icon { background: linear-gradient(135deg, #ec4899, #db2777); }
+    .category-dermatological .category-icon { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .category-mental .category-icon { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    
+    /* Symptom Grid */
+    .symptoms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+    }
+    
+    .symptom-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        background: white;
+    }
+    
+    .symptom-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .symptom-card.selected {
+        border-color: #4f46e5;
+        background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+    }
+    
+    .symptom-card.related {
+        border-color: #f59e0b;
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    }
+    
+    .symptom-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .symptom-checkbox {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #d1d5db;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    
+    .symptom-card.selected .symptom-checkbox {
+        background: #4f46e5;
+        border-color: #4f46e5;
+        color: white;
+    }
+    
+    .symptom-name {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 16px;
+        flex: 1;
+    }
+    
+    .symptom-priority {
+        background: #fef2f2;
+        color: #dc2626;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .symptom-description {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 12px;
+        line-height: 1.4;
+    }
+    
+    .severity-slider {
+        display: none;
+    }
+    
+    .symptom-card.selected .severity-slider {
+        display: block;
+    }
+    
+    .severity-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .severity-options {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .severity-btn {
+        flex: 1;
+        padding: 6px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: white;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+    
+    .severity-btn.active {
+        background: #4f46e5;
+        color: white;
+        border-color: #4f46e5;
+    }
+    
+    .severity-btn.mild.active { background: #10b981; border-color: #10b981; }
+    .severity-btn.moderate.active { background: #f59e0b; border-color: #f59e0b; }
+    .severity-btn.severe.active { background: #ef4444; border-color: #ef4444; }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin: 24px 0;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    
+    .btn-primary {
+        background: #4f46e5;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #4338ca;
+        transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+        background: #f8fafc;
+        color: #475569;
+        border: 2px solid #e2e8f0;
+    }
+    
+    .btn-secondary:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+    
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+    
+    /* Saved Combinations */
+    .saved-combinations {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .saved-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .saved-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .saved-name {
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .saved-symptoms {
+        font-size: 14px;
+        color: #64748b;
+        margin-top: 4px;
+    }
+    
+    .saved-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .saved-btn {
+        background: none;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    
+    .saved-btn:hover {
+        background: #e2e8f0;
+    }
+    
+    .saved-btn.load:hover {
+        color: #4f46e5;
+    }
+    
+    .saved-btn.delete:hover {
+        color: #dc2626;
+        background: #fef2f2;
+    }
+    
+    /* Recent Predictions */
+    .recent-predictions {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .prediction-item {
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        border-left: 4px solid #4f46e5;
+    }
+    
+    .prediction-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .prediction-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 8px;
+    }
+    
+    .prediction-disease {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 18px;
+    }
+    
+    .prediction-confidence {
+        background: #4f46e5;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .prediction-symptoms {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    .prediction-date {
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    .delete-prediction-btn {
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        margin-left: 8px;
+    }
+
+    .delete-prediction-btn:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+    }
+
+    .btn {
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn:hover {
+        background: #4b5563;
+    }
+
+    .btn-secondary {
+        background: #dc2626;
+    }
+
+    .btn-secondary:hover {
+        background: #b91c1c;
+    }
+    
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+        .prediction-container {
+            padding: 12px;
+        }
+        
+        .header-section {
+            padding: 16px;
+        }
+        
+        .header-section h1 {
+            font-size: 1.5rem;
+        }
+        
+        .symptoms-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .quick-actions {
+            flex-direction: column;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .symptom-card {
+            padding: 12px;
+        }
+        
+        .selected-list {
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .controls-section {
+            padding: 16px;
+        }
+    }
+    
+    /* Touch Improvements */
+    @media (max-width: 480px) {
+        .symptom-card {
+            min-height: 60px;
+            padding: 16px;
+        }
+        
+        .symptom-name {
+            font-size: 18px;
+        }
+        
+        .severity-btn {
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+        
+        .category-header {
+            padding: 20px;
+        }
+        
+        .category-title {
+            font-size: 1.2rem;
+        }
+    }
+    
+    /* Emergency Alert */
+    .emergency-alert {
+        background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+        border: 2px solid #f87171;
+        border-radius: 12px;
+        padding: 16px;
+        margin: 16px 0;
+        display: none;
+    }
+    
+    .emergency-alert.show {
+        display: block;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .emergency-text {
+        color: #991b1b;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    /* Loading State */
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .loading.show {
+        display: block;
+    }
+    
+    .spinner {
+        border: 3px solid #f3f4f6;
+        border-top: 3px solid #4f46e5;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="prediction-container">
+    <!-- Header -->
+    <div class="header-section">
+        <h1>
+            <i class='bx bx-brain'></i>
+            AI Disease Prediction
+        </h1>
+        <p>Select your symptoms to get intelligent health insights and recommendations</p>
+    </div>
+
+    <!-- Emergency Alert -->
+    <div class="emergency-alert" id="emergencyAlert">
+        <p class="emergency-text">
+            <i class='bx bx-error'></i>
+            Severe symptoms detected. Please seek immediate medical attention or call emergency services.
+        </p>
+    </div>
+
+    <!-- Search and Controls -->
+    <div class="controls-section">
+        <div class="search-container">
+            <i class='bx bx-search search-icon'></i>
+            <input type="text" class="search-input" placeholder="Search symptoms..." id="symptomSearch">
+        </div>
+        
+        <div class="quick-actions">
+            <button class="quick-btn emergency" onclick="selectEmergencySymptoms()">
+                <i class='bx bx-plus-medical'></i> Emergency Symptoms
+            </button>
+            <button class="quick-btn" onclick="selectCommonCold()">
+                <i class='bx bx-wind'></i> Common Cold
+            </button>
+            <button class="quick-btn" onclick="selectFlu()">
+                <i class='bx bx-thermometer'></i> Flu
+            </button>
+            <button class="quick-btn" onclick="selectAllergy()">
+                <i class='bx bx-leaf'></i> Allergies
+            </button>
+            <button class="quick-btn" onclick="clearAllSymptoms()">
+                <i class='bx bx-x'></i> Clear All
+            </button>
+        </div>
+    </div>
+
+    <!-- Selected Symptoms Display -->
+    <div class="selected-symptoms">
+        <div class="selected-header">
+            <h3>Selected Symptoms</h3>
+            <span class="symptom-count" id="symptomCount">0/10</span>
+        </div>
+        <div class="selected-list" id="selectedList">
+            <div class="no-symptoms">No symptoms selected. Choose from the categories below.</div>
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <form method="post" id="predictionForm">
+        {% csrf_token %}
+        
+        <!-- Category Sections -->
+        <div class="categories-container" id="categoriesContainer">
+            <!-- Categories will be populated by JavaScript -->
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button type="button" class="btn btn-secondary" onclick="saveCurrentCombination()">
+                <i class='bx bx-save'></i>
+                Save Combination
+            </button>
+            <button type="submit" class="btn btn-primary" id="predictBtn" disabled>
+                <i class='bx bx-brain'></i>
+                Predict Disease
+            </button>
+        </div>
+    </form>
+
+    <!-- Loading State -->
+    <div class="loading" id="loadingState">
+        <div class="spinner"></div>
+        <p>Analyzing your symptoms...</p>
+    </div>
+
+    <!-- Saved Combinations -->
+    <div class="saved-combinations" id="savedCombinations" style="display: none;">
+        <h3 style="margin: 0 0 16px 0; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+            <i class='bx bx-bookmark'></i>
+            Saved Symptom Combinations
+        </h3>
+        <div id="savedList">
+            <!-- Saved combinations will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Recent Predictions -->
+    {% if recent_predictions %}
+    <div class="recent-predictions">
+        <h3 style="margin: 0 0 16px 0; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+            <i class='bx bx-history'></i>
+            Recent Predictions
+            <button type="button" class="btn btn-secondary" style="margin-left: auto; padding: 6px 12px; font-size: 14px;" onclick="deleteAllPredictions()">
+                <i class='bx bx-trash'></i>
+                Delete All
+            </button>
+        </h3>
+        {% for prediction in recent_predictions %}
+            <div class="prediction-item" id="prediction-{{ prediction.id }}">
+                <div class="prediction-header">
+                    <div class="prediction-disease">{{ prediction.predicted_disease }}</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="prediction-confidence">{{ prediction.confidence_score }}% confidence</div>
+                        <button type="button" class="delete-prediction-btn" onclick="deletePrediction({{ prediction.id }})" title="Delete this prediction">
+                            <i class='bx bx-trash'></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="prediction-symptoms">
+                    <strong>Symptoms:</strong> {{ prediction.symptoms }}
+                </div>
+                <div class="prediction-date">{{ prediction.created_at|date:"M d, Y - g:i A" }}</div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Symptom data with categories and descriptions
+const symptomCategories = {
+    general: {
+        name: 'General',
+        icon: 'bx-body',
+        color: 'general',
+        symptoms: [
+            { name: 'Fever', key: 'fever', description: 'Elevated body temperature above normal range', priority: false },
+            { name: 'Fatigue', key: 'fatigue', description: 'Persistent tiredness or lack of energy', priority: false },
+            { name: 'Weight Loss', key: 'weight_loss', description: 'Unexplained reduction in body weight', priority: true },
+            { name: 'Chills', key: 'chills', description: 'Feeling cold with shivering', priority: false }
+        ]
+    },
+    respiratory: {
+        name: 'Respiratory',
+        icon: 'bx-wind',
+        color: 'respiratory',
+        symptoms: [
+            { name: 'Cough', key: 'cough', description: 'Persistent or recurring cough', priority: false },
+            { name: 'Shortness of Breath', key: 'shortness_of_breath', description: 'Difficulty breathing or breathlessness', priority: true },
+            { name: 'Sore Throat', key: 'sore_throat', description: 'Pain or irritation in the throat', priority: false },
+            { name: 'Runny Nose', key: 'runny_nose', description: 'Nasal discharge or congestion', priority: false },
+            { name: 'Sneezing', key: 'sneezing', description: 'Frequent or persistent sneezing', priority: false }
+        ]
+    },
+    digestive: {
+        name: 'Digestive',
+        icon: 'bx-restaurant',
+        color: 'digestive',
+        symptoms: [
+            { name: 'Nausea', key: 'nausea', description: 'Feeling of sickness or urge to vomit', priority: false },
+            { name: 'Vomiting', key: 'vomiting', description: 'Forceful expulsion of stomach contents', priority: true },
+            { name: 'Diarrhea', key: 'diarrhea', description: 'Loose or frequent bowel movements', priority: false },
+            { name: 'Stomach Pain', key: 'stomach_pain', description: 'Abdominal pain or cramping', priority: false },
+            { name: 'Loss of Appetite', key: 'loss_of_appetite', description: 'Reduced desire to eat', priority: false }
+        ]
+    },
+    neurological: {
+        name: 'Neurological',
+        icon: 'bx-brain',
+        color: 'neurological',
+        symptoms: [
+            { name: 'Headache', key: 'headache', description: 'Pain in the head or upper neck', priority: false },
+            { name: 'Dizziness', key: 'dizziness', description: 'Feeling lightheaded or unsteady', priority: false },
+            { name: 'Confusion', key: 'confusion', description: 'Difficulty thinking clearly or concentrating', priority: true },
+            { name: 'Memory Problems', key: 'memory_problems', description: 'Difficulty remembering things', priority: true },
+            { name: 'Concentration Difficulty', key: 'concentration_difficulty', description: 'Trouble focusing or paying attention', priority: false }
+        ]
+    },
+    musculoskeletal: {
+        name: 'Musculoskeletal',
+        icon: 'bx-dumbbell',
+        color: 'musculoskeletal',
+        symptoms: [
+            { name: 'Joint Pain', key: 'joint_pain', description: 'Pain in joints such as knees, elbows, or wrists', priority: false },
+            { name: 'Back Pain', key: 'back_pain', description: 'Pain in the back or spine area', priority: false },
+            { name: 'Muscle Weakness', key: 'muscle_weakness', description: 'Reduced strength in muscles', priority: true },
+            { name: 'Body Aches', key: 'body_aches', description: 'General muscle soreness or pain', priority: false }
+        ]
+    },
+    cardiovascular: {
+        name: 'Cardiovascular',
+        icon: 'bx-heart',
+        color: 'cardiovascular',
+        symptoms: [
+            { name: 'Chest Pain', key: 'chest_pain', description: 'Pain or discomfort in the chest area', priority: true },
+            { name: 'Excessive Thirst', key: 'excessive_thirst', description: 'Unusually increased need for fluids', priority: false },
+            { name: 'Frequent Urination', key: 'frequent_urination', description: 'Need to urinate more often than usual', priority: false }
+        ]
+    },
+    dermatological: {
+        name: 'Dermatological',
+        icon: 'bx-face',
+        color: 'dermatological',
+        symptoms: [
+            { name: 'Skin Rash', key: 'skin_rash', description: 'Changes in skin color, texture, or appearance', priority: false },
+            { name: 'Slow Healing Wounds', key: 'slow_healing_wounds', description: 'Cuts or injuries that heal slowly', priority: true },
+            { name: 'Blurred Vision', key: 'blurred_vision', description: 'Difficulty seeing clearly', priority: true },
+            { name: 'Tingling Hands Feet', key: 'tingling_hands_feet', description: 'Numbness or tingling in extremities', priority: true }
+        ]
+    },
+    mental: {
+        name: 'Mental Health',
+        icon: 'bx-happy-heart-eyes',
+        color: 'mental',
+        symptoms: [
+            { name: 'Mood Changes', key: 'mood_changes', description: 'Unusual changes in emotional state', priority: false },
+            { name: 'Sleep Problems', key: 'sleep_problems', description: 'Difficulty sleeping or staying asleep', priority: false }
+        ]
+    }
+};
+
+// Symptom relationships for smart suggestions
+const symptomRelationships = {
+    'fever': ['chills', 'body_aches', 'fatigue', 'headache'],
+    'cough': ['sore_throat', 'shortness_of_breath', 'chest_pain'],
+    'nausea': ['vomiting', 'stomach_pain', 'loss_of_appetite', 'diarrhea'],
+    'headache': ['dizziness', 'fatigue', 'mood_changes'],
+    'joint_pain': ['muscle_weakness', 'back_pain', 'body_aches'],
+    'chest_pain': ['shortness_of_breath', 'dizziness'],
+    'skin_rash': ['sneezing', 'runny_nose'],
+    'fatigue': ['sleep_problems', 'concentration_difficulty', 'mood_changes']
+};
+
+// Emergency symptoms that trigger alerts
+const emergencySymptoms = ['chest_pain', 'shortness_of_breath', 'confusion', 'vomiting', 'muscle_weakness', 'slow_healing_wounds', 'blurred_vision', 'tingling_hands_feet'];
+
+// Selected symptoms storage
+let selectedSymptoms = {};
+let maxSymptoms = 10;
+
+// Initialize the interface
+document.addEventListener('DOMContentLoaded', function() {
+    renderCategories();
+    loadSavedCombinations();
+    setupEventListeners();
+    updateSelectedDisplay();
+});
+
+function renderCategories() {
+    const container = document.getElementById('categoriesContainer');
+    container.innerHTML = '';
+
+    Object.keys(symptomCategories).forEach(categoryKey => {
+        const category = symptomCategories[categoryKey];
+        const categoryElement = createCategoryElement(categoryKey, category);
+        container.appendChild(categoryElement);
+    });
+}
+
+function createCategoryElement(categoryKey, category) {
+    const section = document.createElement('div');
+    section.className = `category-section category-${category.color}`;
+    section.id = `category-${categoryKey}`;
+
+    const selectedCount = category.symptoms.filter(s => selectedSymptoms[s.key]).length;
+    
+    section.innerHTML = `
+        <div class="category-header" onclick="toggleCategory('${categoryKey}')">
+            <div class="category-info">
+                <div class="category-icon">
+                    <i class='${category.icon}'></i>
+                </div>
+                <div>
+                    <h3 class="category-title">${category.name}</h3>
+                    <span class="category-count">${selectedCount}/${category.symptoms.length} selected</span>
+                </div>
+            </div>
+            <i class='bx bx-chevron-down category-toggle'></i>
+        </div>
+        <div class="category-content">
+            <div class="symptoms-grid" id="symptoms-${categoryKey}">
+                ${category.symptoms.map(symptom => createSymptomCard(symptom, categoryKey)).join('')}
+            </div>
+        </div>
+    `;
+
+    return section;
+}
+
+function createSymptomCard(symptom, categoryKey) {
+    const isSelected = selectedSymptoms[symptom.key];
+    const isRelated = isSymptomRelated(symptom.key);
+    const severity = isSelected ? selectedSymptoms[symptom.key].severity : 'mild';
+
+    return `
+        <div class="symptom-card ${isSelected ? 'selected' : ''} ${isRelated ? 'related' : ''}" 
+             onclick="toggleSymptom('${symptom.key}', '${symptom.name}', '${categoryKey}')">
+            <div class="symptom-header">
+                <div class="symptom-checkbox">
+                    ${isSelected ? '<i class="bx bx-check"></i>' : ''}
+                </div>
+                <div class="symptom-name">${symptom.name}</div>
+                ${symptom.priority ? '<div class="symptom-priority">High Priority</div>' : ''}
+            </div>
+            <div class="symptom-description">${symptom.description}</div>
+            <div class="severity-slider">
+                <div class="severity-label">Severity Level</div>
+                <div class="severity-options">
+                    <button type="button" class="severity-btn mild ${severity === 'mild' ? 'active' : ''}" 
+                            onclick="setSeverity(event, '${symptom.key}', 'mild')">Mild</button>
+                    <button type="button" class="severity-btn moderate ${severity === 'moderate' ? 'active' : ''}" 
+                            onclick="setSeverity(event, '${symptom.key}', 'moderate')">Moderate</button>
+                    <button type="button" class="severity-btn severe ${severity === 'severe' ? 'active' : ''}" 
+                            onclick="setSeverity(event, '${symptom.key}', 'severe')">Severe</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function setupEventListeners() {
+    // Search functionality
+    document.getElementById('symptomSearch').addEventListener('input', function(e) {
+        filterSymptoms(e.target.value);
+    });
+
+    // Form submission
+    document.getElementById('predictionForm').addEventListener('submit', function(e) {
+        if (Object.keys(selectedSymptoms).length === 0) {
+            e.preventDefault();
+            alert('Please select at least one symptom.');
+            return;
+        }
+
+        // Show loading state
+        document.getElementById('loadingState').classList.add('show');
+        
+        // Add selected symptoms to form
+        Object.keys(selectedSymptoms).forEach(symptomKey => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'symptoms';
+            input.value = symptomKey;
+            this.appendChild(input);
+        });
+    });
+}
+
+function toggleCategory(categoryKey) {
+    const section = document.getElementById(`category-${categoryKey}`);
+    section.classList.toggle('collapsed');
+}
+
+function toggleSymptom(key, name, categoryKey) {
+    if (selectedSymptoms[key]) {
+        // Remove symptom
+        delete selectedSymptoms[key];
+    } else {
+        // Add symptom (check limit)
+        if (Object.keys(selectedSymptoms).length >= maxSymptoms) {
+            alert(`Maximum ${maxSymptoms} symptoms allowed.`);
+            return;
+        }
+        selectedSymptoms[key] = {
+            name: name,
+            category: categoryKey,
+            severity: 'mild'
+        };
+    }
+
+    updateSelectedDisplay();
+    updateCategoryDisplay(categoryKey);
+    updateRelatedSymptoms();
+    checkEmergencySymptoms();
+}
+
+function setSeverity(event, symptomKey, severity) {
+    event.stopPropagation();
+    if (selectedSymptoms[symptomKey]) {
+        selectedSymptoms[symptomKey].severity = severity;
+        updateSelectedDisplay();
+        
+        // Update the severity buttons in the card
+        const card = event.target.closest('.symptom-card');
+        card.querySelectorAll('.severity-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+    }
+}
+
+function updateSelectedDisplay() {
+    const selectedList = document.getElementById('selectedList');
+    const symptomCount = document.getElementById('symptomCount');
+    const predictBtn = document.getElementById('predictBtn');
+    
+    const count = Object.keys(selectedSymptoms).length;
+    symptomCount.textContent = `${count}/${maxSymptoms}`;
+    
+    if (count === 0) {
+        selectedList.innerHTML = '<div class="no-symptoms">No symptoms selected. Choose from the categories below.</div>';
+        predictBtn.disabled = true;
+    } else {
+        selectedList.innerHTML = Object.keys(selectedSymptoms).map(key => {
+            const symptom = selectedSymptoms[key];
+            return `
+                <div class="selected-symptom">
+                    ${symptom.name}
+                    <span class="severity">(${symptom.severity})</span>
+                    <button type="button" class="remove-btn" onclick="removeSymptom('${key}')">
+                        <i class='bx bx-x'></i>
+                    </button>
+                </div>
+            `;
+        }).join('');
+        predictBtn.disabled = false;
+    }
+}
+
+function updateCategoryDisplay(categoryKey) {
+    const category = symptomCategories[categoryKey];
+    const selectedCount = category.symptoms.filter(s => selectedSymptoms[s.key]).length;
+    const countElement = document.querySelector(`#category-${categoryKey} .category-count`);
+    countElement.textContent = `${selectedCount}/${category.symptoms.length} selected`;
+    
+    // Re-render category symptoms
+    const symptomsGrid = document.getElementById(`symptoms-${categoryKey}`);
+    symptomsGrid.innerHTML = category.symptoms.map(symptom => createSymptomCard(symptom, categoryKey)).join('');
+}
+
+function updateRelatedSymptoms() {
+    // Remove all related classes first
+    document.querySelectorAll('.symptom-card.related').forEach(card => {
+        card.classList.remove('related');
+    });
+
+    // Add related classes for current selections
+    Object.keys(selectedSymptoms).forEach(selectedKey => {
+        if (symptomRelationships[selectedKey]) {
+            symptomRelationships[selectedKey].forEach(relatedKey => {
+                if (!selectedSymptoms[relatedKey]) {
+                    const relatedCard = document.querySelector(`[onclick*="${relatedKey}"]`);
+                    if (relatedCard) {
+                        relatedCard.classList.add('related');
+                    }
+                }
+            });
+        }
+    });
+}
+
+function isSymptomRelated(symptomKey) {
+    return Object.keys(selectedSymptoms).some(selectedKey => {
+        return symptomRelationships[selectedKey] && symptomRelationships[selectedKey].includes(symptomKey);
+    });
+}
+
+function checkEmergencySymptoms() {
+    const hasEmergency = Object.keys(selectedSymptoms).some(key => emergencySymptoms.includes(key));
+    const alert = document.getElementById('emergencyAlert');
+    
+    if (hasEmergency) {
+        alert.classList.add('show');
+    } else {
+        alert.classList.remove('show');
+    }
+}
+
+function removeSymptom(key) {
+    const categoryKey = selectedSymptoms[key].category;
+    delete selectedSymptoms[key];
+    updateSelectedDisplay();
+    updateCategoryDisplay(categoryKey);
+    updateRelatedSymptoms();
+    checkEmergencySymptoms();
+}
+
+function clearAllSymptoms() {
+    const categories = Object.keys(selectedSymptoms).map(key => selectedSymptoms[key].category);
+    selectedSymptoms = {};
+    updateSelectedDisplay();
+    categories.forEach(cat => updateCategoryDisplay(cat));
+    updateRelatedSymptoms();
+    checkEmergencySymptoms();
+}
+
+function filterSymptoms(searchTerm) {
+    const term = searchTerm.toLowerCase();
+    
+    Object.keys(symptomCategories).forEach(categoryKey => {
+        const category = symptomCategories[categoryKey];
+        const categoryElement = document.getElementById(`category-${categoryKey}`);
+        let hasVisibleSymptoms = false;
+        
+        category.symptoms.forEach(symptom => {
+            const card = document.querySelector(`[onclick*="${symptom.key}"]`);
+            if (card) {
+                if (term === '' || symptom.name.toLowerCase().includes(term) || symptom.description.toLowerCase().includes(term)) {
+                    card.style.display = '';
+                    hasVisibleSymptoms = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            }
+        });
+        
+        // Hide category if no visible symptoms
+        if (term !== '') {
+            categoryElement.style.display = hasVisibleSymptoms ? '' : 'none';
+        } else {
+            categoryElement.style.display = '';
+        }
+    });
+}
+
+// Quick preset functions
+function selectEmergencySymptoms() {
+    clearAllSymptoms();
+    const emergency = ['chest_pain', 'shortness_of_breath', 'confusion'];
+    emergency.forEach(key => {
+        const symptom = findSymptomByKey(key);
+        if (symptom) {
+            selectedSymptoms[key] = {
+                name: symptom.name,
+                category: findCategoryBySymptom(key),
+                severity: 'severe'
+            };
+        }
+    });
+    updateAllDisplays();
+}
+
+function selectCommonCold() {
+    clearAllSymptoms();
+    const cold = ['cough', 'runny_nose', 'sneezing', 'sore_throat'];
+    cold.forEach(key => {
+        const symptom = findSymptomByKey(key);
+        if (symptom) {
+            selectedSymptoms[key] = {
+                name: symptom.name,
+                category: findCategoryBySymptom(key),
+                severity: 'mild'
+            };
+        }
+    });
+    updateAllDisplays();
+}
+
+function selectFlu() {
+    clearAllSymptoms();
+    const flu = ['fever', 'body_aches', 'fatigue', 'headache', 'cough'];
+    flu.forEach(key => {
+        const symptom = findSymptomByKey(key);
+        if (symptom) {
+            selectedSymptoms[key] = {
+                name: symptom.name,
+                category: findCategoryBySymptom(key),
+                severity: 'moderate'
+            };
+        }
+    });
+    updateAllDisplays();
+}
+
+function selectAllergy() {
+    clearAllSymptoms();
+    const allergy = ['sneezing', 'runny_nose', 'skin_rash'];
+    allergy.forEach(key => {
+        const symptom = findSymptomByKey(key);
+        if (symptom) {
+            selectedSymptoms[key] = {
+                name: symptom.name,
+                category: findCategoryBySymptom(key),
+                severity: 'mild'
+            };
+        }
+    });
+    updateAllDisplays();
+}
+
+function findSymptomByKey(key) {
+    for (const category of Object.values(symptomCategories)) {
+        const symptom = category.symptoms.find(s => s.key === key);
+        if (symptom) return symptom;
+    }
+    return null;
+}
+
+function findCategoryBySymptom(key) {
+    for (const [categoryKey, category] of Object.entries(symptomCategories)) {
+        if (category.symptoms.some(s => s.key === key)) {
+            return categoryKey;
+        }
+    }
+    return null;
+}
+
+function updateAllDisplays() {
+    updateSelectedDisplay();
+    Object.keys(symptomCategories).forEach(cat => updateCategoryDisplay(cat));
+    updateRelatedSymptoms();
+    checkEmergencySymptoms();
+}
+
+// Save/Load functionality
+function saveCurrentCombination() {
+    if (Object.keys(selectedSymptoms).length === 0) {
+        alert('No symptoms selected to save.');
+        return;
+    }
+    
+    const name = prompt('Enter a name for this symptom combination:');
+    if (name) {
+        const saved = getSavedCombinations();
+        saved[name] = selectedSymptoms;
+        localStorage.setItem('symptomCombinations', JSON.stringify(saved));
+        loadSavedCombinations();
+        alert('Combination saved successfully!');
+    }
+}
+
+function getSavedCombinations() {
+    const saved = localStorage.getItem('symptomCombinations');
+    return saved ? JSON.parse(saved) : {};
+}
+
+function loadSavedCombinations() {
+    const saved = getSavedCombinations();
+    const container = document.getElementById('savedCombinations');
+    const list = document.getElementById('savedList');
+    
+    if (Object.keys(saved).length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    
+    container.style.display = 'block';
+    list.innerHTML = Object.keys(saved).map(name => {
+        const combination = saved[name];
+        const symptomNames = Object.values(combination).map(s => s.name).join(', ');
+        
+        return `
+            <div class="saved-item">
+                <div>
+                    <div class="saved-name">${name}</div>
+                    <div class="saved-symptoms">${symptomNames}</div>
+                </div>
+                <div class="saved-actions">
+                    <button class="saved-btn load" onclick="loadCombination('${name}')">
+                        <i class='bx bx-download'></i> Load
+                    </button>
+                    <button class="saved-btn delete" onclick="deleteCombination('${name}')">
+                        <i class='bx bx-trash'></i> Delete
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function loadCombination(name) {
+    const saved = getSavedCombinations();
+    if (saved[name]) {
+        selectedSymptoms = { ...saved[name] };
+        updateAllDisplays();
+    }
+}
+
+function deleteCombination(name) {
+    if (confirm(`Delete the combination "${name}"?`)) {
+        const saved = getSavedCombinations();
+        delete saved[name];
+        localStorage.setItem('symptomCombinations', JSON.stringify(saved));
+        loadSavedCombinations();
+    }
+}
+
+// Delete prediction functions
+function deletePrediction(predictionId) {
+    if (confirm('Are you sure you want to delete this prediction?')) {
+        fetch('{% url "ml_prediction:delete_prediction" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'prediction_id': predictionId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the prediction item from the DOM
+                const predictionElement = document.getElementById('prediction-' + predictionId);
+                if (predictionElement) {
+                    predictionElement.remove();
+                    
+                    // Check if there are no more predictions and hide the section
+                    const remainingPredictions = document.querySelectorAll('.prediction-item');
+                    if (remainingPredictions.length === 0) {
+                        const recentPredictionsSection = document.querySelector('.recent-predictions');
+                        if (recentPredictionsSection) {
+                            recentPredictionsSection.style.display = 'none';
+                        }
+                    }
+                }
+                
+                // Show success message
+                showMessage('Prediction deleted successfully', 'success');
+            } else {
+                showMessage(data.error || 'Failed to delete prediction', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('An error occurred while deleting the prediction', 'error');
+        });
+    }
+}
+
+function deleteAllPredictions() {
+    if (confirm('Are you sure you want to delete ALL your predictions? This action cannot be undone.')) {
+        fetch('{% url "ml_prediction:delete_all_predictions" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Hide the entire recent predictions section
+                const recentPredictionsSection = document.querySelector('.recent-predictions');
+                if (recentPredictionsSection) {
+                    recentPredictionsSection.style.display = 'none';
+                }
+                
+                showMessage('All predictions deleted successfully', 'success');
+            } else {
+                showMessage(data.error || 'Failed to delete predictions', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('An error occurred while deleting predictions', 'error');
+        });
+    }
+}
+
+function showMessage(message, type) {
+    // Create a temporary message element
+    const messageDiv = document.createElement('div');
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        ${type === 'success' ? 'background: #10b981;' : 'background: #ef4444;'}
+    `;
+    messageDiv.textContent = message;
+    
+    document.body.appendChild(messageDiv);
+    
+    // Remove the message after 3 seconds
+    setTimeout(() => {
+        messageDiv.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.parentNode.removeChild(messageDiv);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Add CSS for animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

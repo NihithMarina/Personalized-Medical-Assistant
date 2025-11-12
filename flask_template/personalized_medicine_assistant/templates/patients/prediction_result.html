@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Prediction Result - PMA{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class='bx bx-brain mr-2 text-primary'></i>
+                    Prediction Result
+                </h1>
+                <p class="text-gray-600 mt-2">Based on your selected symptoms</p>
+            </div>
+            <a href="{% url 'patients:disease_prediction' %}" 
+               class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                <i class='bx bx-arrow-back mr-2'></i>
+                New Prediction
+            </a>
+        </div>
+    </div>
+
+    <!-- Prediction Results -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Main Result -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="text-center mb-6">
+                <div class="bg-primary/10 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                    <i class='bx bx-health text-4xl text-primary'></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ prediction_result.disease }}</h2>
+                <div class="flex items-center justify-center">
+                    <span class="bg-primary text-white px-4 py-2 rounded-full text-lg font-semibold">
+                        {{ prediction_result.confidence }}% Confidence
+                    </span>
+                </div>
+            </div>
+            
+            <div class="border-t pt-4">
+                <h3 class="font-semibold text-gray-700 mb-2">
+                    <i class='bx bx-list-check mr-2'></i>
+                    Your Symptoms:
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    {% for symptom in symptoms %}
+                        <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+                            {{ symptom|title }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Confidence Meter -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold mb-4">
+                <i class='bx bx-bar-chart mr-2 text-secondary'></i>
+                Confidence Level
+            </h3>
+            <div class="space-y-4">
+                <div class="flex justify-between text-sm">
+                    <span>Prediction Accuracy</span>
+                    <span>{{ prediction_result.confidence }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-secondary to-primary h-3 rounded-full transition-all duration-1000" 
+                         style="width: {{ prediction_result.confidence }}%"></div>
+                </div>
+                <div class="text-sm text-gray-600">
+                    {% if prediction_result.confidence > 80 %}
+                        <i class='bx bx-check-circle text-green-500 mr-1'></i>
+                        High confidence prediction
+                    {% elif prediction_result.confidence > 60 %}
+                        <i class='bx bx-info-circle text-yellow-500 mr-1'></i>
+                        Moderate confidence prediction
+                    {% else %}
+                        <i class='bx bx-error-circle text-red-500 mr-1'></i>
+                        Low confidence - consult a doctor
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Medicine Recommendations -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold mb-4">
+                <i class='bx bx-pill mr-2 text-accent'></i>
+                Medicine Recommendations
+            </h3>
+            <div class="bg-accent/10 border border-accent/20 rounded-lg p-4">
+                <p class="text-gray-700">{{ prediction_result.medicines }}</p>
+            </div>
+            <div class="mt-4 text-sm text-gray-600">
+                <i class='bx bx-info-circle mr-1'></i>
+                Always consult with a healthcare provider before taking any medication
+            </div>
+        </div>
+
+        <!-- Diet Recommendations -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold mb-4">
+                <i class='bx bx-restaurant mr-2 text-secondary'></i>
+                Diet Recommendations
+            </h3>
+            <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
+                <p class="text-gray-700">{{ prediction_result.diet }}</p>
+            </div>
+            <div class="mt-4 text-sm text-gray-600">
+                <i class='bx bx-info-circle mr-1'></i>
+                Proper nutrition can help support your recovery
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h3 class="text-lg font-semibold mb-4">
+            <i class='bx bx-zap mr-2 text-primary'></i>
+            Next Steps
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'patients:book_appointment' %}" 
+               class="bg-primary text-white p-4 rounded-lg hover:bg-blue-600 transition text-center">
+                <i class='bx bx-calendar-plus text-2xl mb-2 block'></i>
+                <span class="font-semibold">Book Appointment</span>
+                <p class="text-sm mt-1 opacity-90">See a doctor for confirmation</p>
+            </a>
+            <a href="{% url 'patients:add_medicine_reminder' %}" 
+               class="bg-accent text-white p-4 rounded-lg hover:bg-yellow-600 transition text-center">
+                <i class='bx bx-alarm-add text-2xl mb-2 block'></i>
+                <span class="font-semibold">Set Reminders</span>
+                <p class="text-sm mt-1 opacity-90">For prescribed medications</p>
+            </a>
+            <a href="{% url 'patients:add_medical_record' %}" 
+               class="bg-secondary text-white p-4 rounded-lg hover:bg-green-600 transition text-center">
+                <i class='bx bx-file-plus text-2xl mb-2 block'></i>
+                <span class="font-semibold">Add Record</span>
+                <p class="text-sm mt-1 opacity-90">Save this prediction</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div class="flex items-start">
+            <i class='bx bx-error-circle text-2xl text-red-600 mr-3 mt-1'></i>
+            <div>
+                <h3 class="text-lg font-semibold text-red-800 mb-2">Medical Disclaimer</h3>
+                <p class="text-red-700">
+                    This prediction is generated by an AI model and is for informational purposes only. 
+                    It should not be used as a substitute for professional medical advice, diagnosis, or treatment. 
+                    Always seek the advice of your physician or other qualified health provider with any questions 
+                    you may have regarding a medical condition.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

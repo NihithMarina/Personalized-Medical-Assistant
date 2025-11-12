@@ -1,0 +1,584 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Messages - Doctor Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    /* Full Page Layout */
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .main-container {
+        min-height: 100vh;
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Top Navigation Bar */
+    .top-navbar {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 16px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15);
+    }
+    
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .dashboard-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-1px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .nav-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .nav-title-icon {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 16px;
+        border-radius: 10px;
+    }
+    
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    /* Main Content Area */
+    .content-wrapper {
+        padding: 32px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 20px rgba(16, 24, 40, 0.08);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1e40af;
+        font-size: 28px;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.1);
+    }
+    
+    .header-text h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0 0 8px 0;
+        line-height: 1.1;
+    }
+    
+    .header-text p {
+        color: #64748b;
+        font-size: 1.1rem;
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .header-stats {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1e40af;
+        display: block;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 4px;
+    }
+    
+    /* Filter Section */
+    .filter-section {
+        background: white;
+        border-radius: 16px;
+        padding: 24px 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+        border: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .filter-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-right: 16px;
+    }
+    
+    .filter-select {
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        min-width: 200px;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: #1e40af;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+    
+    /* Messages Section */
+    .messages-section {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 24px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .messages-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .message-item {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .message-item:hover {
+        box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+        transform: translateY(-1px);
+    }
+    
+    .message-item.unread {
+        border-left: 4px solid #1e40af;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    }
+    
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+    
+    .message-info {
+        flex: 1;
+    }
+    
+    .message-sender {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 4px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .message-type-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-patient {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .badge-admin {
+        background: #f3e8ff;
+        color: #7c3aed;
+    }
+    
+    .message-subject {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #374151;
+        margin: 0;
+    }
+    
+    .message-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 8px;
+    }
+    
+    .message-time {
+        color: #64748b;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .unread-indicator {
+        width: 8px;
+        height: 8px;
+        background: #ef4444;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    
+    .message-preview {
+        color: #64748b;
+        margin-top: 12px;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .message-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+    
+    .action-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background: #1e40af;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+    }
+    
+    .btn-secondary {
+        background: transparent;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .btn-secondary:hover {
+        background: #f8fafc;
+        color: #374151;
+        text-decoration: none;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #64748b;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+        color: #1e40af;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #374151;
+    }
+    
+    .empty-state p {
+        margin: 0;
+        font-size: 1rem;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .content-wrapper {
+            padding: 16px;
+        }
+        
+        .top-navbar {
+            padding: 12px 16px;
+        }
+        
+        .nav-left {
+            gap: 12px;
+        }
+        
+        .dashboard-btn {
+            padding: 8px 16px;
+        }
+        
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        
+        .header-stats {
+            flex-direction: row;
+            gap: 20px;
+        }
+        
+        .message-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .message-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <!-- Top Navigation Bar -->
+    <div class="top-navbar">
+        <div class="nav-left">
+            <a href="{% url 'doctors:dashboard' %}" class="dashboard-btn">
+                <i class='bx bx-home'></i>
+                Back to Dashboard
+            </a>
+            <div class="nav-title">
+                <div class="nav-title-icon">
+                    <i class='bx bx-message-dots'></i>
+                </div>
+                Messages
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ user.first_name|first|upper|default:"D" }}
+                </div>
+                <span>Dr. {{ user.doctorprofile.full_name|default:user.first_name|default:user.username }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="header-icon">
+                        <i class='bx bx-message-detail'></i>
+                    </div>
+                    <div class="header-text">
+                        <h1>Message Center</h1>
+                        <p>Communicate with patients and hospital staff</p>
+                    </div>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ unread_count|default:"0" }}</span>
+                        <div class="stat-label">Unread Messages</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ total_messages|default:"0" }}</span>
+                        <div class="stat-label">Total Messages</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-label">Filter messages:</div>
+            <form method="get" style="margin: 0;">
+                <select name="filter" class="filter-select" onchange="this.form.submit()">
+                    <option value="all" {% if message_filter == 'all' %}selected{% endif %}>All Messages</option>
+                    <option value="patient" {% if message_filter == 'patient' %}selected{% endif %}>Patient Messages</option>
+                    <option value="admin" {% if message_filter == 'admin' %}selected{% endif %}>Admin Messages</option>
+                </select>
+            </form>
+        </div>
+
+        <!-- Messages Section -->
+        <div class="messages-section">
+            <div class="section-title">
+                <i class='bx bx-inbox'></i>
+                Inbox ({{ doctor_messages|length }} messages)
+            </div>
+            
+            {% if doctor_messages %}
+            <div class="messages-list">
+                {% for message in doctor_messages %}
+                <div class="message-item {% if not message.is_read %}unread{% endif %}">
+                    <div class="message-header">
+                        <div class="message-info">
+                            <div class="message-sender">
+                                {{ message.sender }}
+                                <span class="message-type-badge badge-{{ message.type }}">
+                                    {{ message.type|title }}
+                                </span>
+                                {% if not message.is_read %}
+                                    <span class="unread-indicator"></span>
+                                {% endif %}
+                            </div>
+                            <h3 class="message-subject">{{ message.subject }}</h3>
+                            <div class="message-meta">
+                                <span class="message-time">
+                                    <i class='bx bx-time'></i>
+                                    {{ message.timestamp|timesince }} ago
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="message-preview">
+                        {{ message.message }}
+                    </div>
+                    <div class="message-actions">
+                        <button class="action-btn btn-primary">
+                            <i class='bx bx-show'></i> Read Message
+                        </button>
+                        {% if message.appointment_id %}
+                        <a href="{% url 'doctors:send_message' message.appointment_id %}" class="action-btn btn-secondary">
+                            <i class='bx bx-reply'></i> Reply
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class='bx bx-message-x'></i>
+                <h3>No Messages Found</h3>
+                <p>{% if message_filter != 'all' %}No {{ message_filter }} messages at the moment.{% else %}Your inbox is empty.{% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

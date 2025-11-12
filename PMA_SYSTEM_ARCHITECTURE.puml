@@ -1,0 +1,108 @@
+@startuml PMA_System_Architecture
+' Personalized Medical Assistant - System Architecture Diagram
+' Generated: November 7, 2025
+' To use in draw.io: Arrange → Insert → Advanced → PlantUML
+
+title Personalized Medical Assistant - System Architecture
+
+' Professional colorful styling - Compact
+skinparam dpi 150
+skinparam defaultFontSize 9
+skinparam backgroundColor #F8F9FA
+
+skinparam component {
+    BorderThickness 1
+    FontSize 9
+}
+
+skinparam database {
+    BorderThickness 1
+    FontSize 9
+}
+
+skinparam rectangle {
+    BorderThickness 2
+    FontSize 9
+}
+
+skinparam arrow {
+    FontSize 8
+    Thickness 2
+}
+
+skinparam package {
+    BorderThickness 2
+    FontSize 10
+    FontStyle bold
+}
+
+' ============ Presentation Layer ============
+rectangle "Client Layer" as ClientLayer #E3F2FD {
+    [Web Browser] as Browser #90CAF9
+    [Mobile App] as Mobile #64B5F6
+}
+
+' ============ Application Layer ============
+rectangle "Application Server (Django)" as AppLayer #C8E6C9 {
+    [URL Router & Views] as Router #66BB6A
+    [Authentication] as Auth #81C784
+    [Business Logic\n(Patient/Doctor/Appointment)] as Logic #4CAF50
+    [Templates] as Templates #A5D6A7
+}
+
+' ============ ML Layer ============
+rectangle "ML Engine" as MLLayer #E1BEE7 {
+    [Prediction Models\n(RF/Enhanced/Overlap)] as Models #AB47BC
+    [Data Processor] as Processor #BA68C8
+}
+
+' ============ Data Layer ============
+rectangle "Data Storage" as DataLayer #FFE0B2 {
+    database "MySQL\n(Users, Patients, Doctors,\nAppointments, Predictions)" as DB #FF9800
+    database "File Storage\n(Medical Records, Images)" as Files #FFB74D
+}
+
+' ============ External Services ============
+rectangle "External Services" as External #FFCDD2 {
+    [Email (SMTP)] as Email #EF5350
+    [SMS Gateway] as SMS #E57373
+}
+
+' ============ Main Connections ============
+Browser -down-> Router : HTTP/HTTPS
+Mobile -down-> Router : HTTP/HTTPS
+
+Router -down-> Auth : Authenticate
+Router -down-> Logic : Process Request
+Router -down-> Templates : Render
+
+Logic -down-> Models : Predict Disease
+Logic -down-> DB : CRUD Operations
+Logic -down-> Files : Store/Retrieve
+
+Models -down-> Processor : Preprocess
+Models -down-> DB : Save Results
+
+Logic -down-> Email : Notifications
+Logic -down-> SMS : Alerts
+
+' ============ Technology Stack ============
+note bottom of AppLayer
+**Tech:** Django 4.x | Python 3.x
+**Auth:** Session + JWT
+**Modules:** Patients, Doctors, Appointments
+end note
+
+note bottom of MLLayer
+**Models:** Random Forest, Enhanced, Overlap
+**Library:** Scikit-learn
+**Mode:** Real-time Inference
+end note
+
+note bottom of DataLayer
+**Database:** MySQL 8.x
+**ORM:** Django ORM
+**Storage:** Local File System
+end note
+
+@enduml

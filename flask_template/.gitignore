@@ -1,0 +1,61 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.env/
+
+# Unit test / coverage reports
+.pytest_cache/
+htmlcov/
+.coverage*
+.tox/
+junit.xml
+
+# Django stuff:
+*.log
+staticfiles/
+mediafiles/
+
+# SQLite database (dev only)
+*.sqlite3
+
+# Data files
+personalized_medicine_assistant/ml_prediction/data/*.csv
+!personalized_medicine_assistant/ml_prediction/data/README.md
+
+# IDE/editor
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+Thumbs.db
+.DS_Store

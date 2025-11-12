@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-11-07T00:00:00.000Z" agent="5.0 (Windows)" etag="" version="16.0.3" type="device">
+  <diagram id="diagram-1" name="Sequence Diagram">
+    <mxGraphModel dx="1424" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <!-- Participants as boxes across the top -->
+        <mxCell id="p1" value="Patient" style="text;html=1;strokeColor=#000000;fillColor=#ffffff;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p2" value="Web App" style="text;html=1;strokeColor=#000000;fillColor=#ffffff;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p3" value="Auth Service" style="text;html=1;strokeColor=#000000;fillColor=#ffffff;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p4" value="ML Engine" style="text;html=1;strokeColor=#000000;fillColor=#ffffff;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p5" value="Database" style="text;html=1;strokeColor=#000000;fillColor=#ffffff;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p6" value="Doctor" style="text;html=1;strokeColor=#000000;fillColor=#ffffff;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="840" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p7" value="Notification Service" style="text;html=1;strokeColor=#000000;fillColor=#ffffff;align=center;verticalAlign=middle;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Lifelines (simple vertical lines) -->
+        <mxCell id="ll1" style="line;strokeColor=#9a9a9a;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="100" width="0" height="600" as="geometry"/>
+        </mxCell>
+        <mxCell id="ll2" style="line;strokeColor=#9a9a9a;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="260" y="100" width="0" height="600" as="geometry"/>
+        </mxCell>
+        <mxCell id="ll3" style="line;strokeColor=#9a9a9a;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="420" y="100" width="0" height="600" as="geometry"/>
+        </mxCell>
+        <mxCell id="ll4" style="line;strokeColor=#9a9a9a;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="580" y="100" width="0" height="600" as="geometry"/>
+        </mxCell>
+        <mxCell id="ll5" style="line;strokeColor=#9a9a9a;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="740" y="100" width="0" height="600" as="geometry"/>
+        </mxCell>
+        <mxCell id="ll6" style="line;strokeColor=#9a9a9a;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="900" y="100" width="0" height="600" as="geometry"/>
+        </mxCell>
+        <mxCell id="ll7" style="line;strokeColor=#9a9a9a;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="100" width="0" height="600" as="geometry"/>
+        </mxCell>
+
+        <!-- Messages as edges between participants -->
+        <mxCell id="e1" value="1. Request appointment / login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#1a73e8;" edge="1" parent="1" source="p1" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" value="2. Authenticate (credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#1a73e8;" edge="1" parent="1" source="p2" target="p3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" value="3. Auth OK / token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;strokeColor=#34a853;" edge="1" parent="1" source="p3" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" value="4. Upload medical record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#1a73e8;" edge="1" parent="1" source="p1" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" value="5. Save record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#fbbc05;" edge="1" parent="1" source="p2" target="p5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" value="6. Acknowledge save" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;strokeColor=#34a853;" edge="1" parent="1" source="p5" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" value="7. Trigger ML prediction (new record)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#1a73e8;" edge="1" parent="1" source="p2" target="p4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" value="8. ML returns prediction & confidence" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;strokeColor=#34a853;" edge="1" parent="1" source="p4" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" value="9. Store prediction" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#fbbc05;" edge="1" parent="1" source="p2" target="p5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" value="10. Notify assigned doctor" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#1a73e8;" edge="1" parent="1" source="p2" target="p6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" value="11. Doctor reviews & requests follow-up" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#1a73e8;" edge="1" parent="1" source="p6" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" value="12. Send notification to patient" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#1a73e8;" edge="1" parent="1" source="p2" target="p7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" value="13. Notification delivered" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;strokeColor=#34a853;" edge="1" parent="1" source="p7" target="p1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Notes / alt fragments (optional) -->
+        <mxCell id="note-ml" value="Alt: If prediction confidence &lt; threshold -> queue for manual review" style="text;html=1;rounded=1;strokeColor=#ff6f00;fillColor=#fff3e0;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="520" y="420" width="300" height="60" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

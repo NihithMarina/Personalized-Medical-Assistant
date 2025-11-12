@@ -1,0 +1,600 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Appointments - PMA{% endblock %}
+
+{% block content %}
+<style>
+    /* Dashboard-consistent styling */
+    .dashboard-section {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 6px 30px rgba(16,24,40,0.06);
+        padding: 32px 28px;
+        margin-bottom: 28px;
+    }
+    
+    .appointments-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+    
+    .header-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        font-size: 22px;
+        box-shadow: 0 4px 12px rgba(16,24,40,0.04);
+    }
+    
+    .page-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #1e40af;
+        margin: 0;
+        line-height: 1.05;
+        letter-spacing: -0.4px;
+    }
+    
+    .page-subtitle {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-top: 6px;
+    }
+    
+    /* Container for better space utilization */
+    .appointments-container {
+        max-width: 95%;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    /* Back navigation */
+    .back-navigation {
+        margin-bottom: 20px;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .back-btn:hover {
+        background: #f8fafc;
+        color: #1e40af;
+        transform: translateX(-2px);
+    }
+    
+    .back-btn i {
+        font-size: 16px;
+    }
+    
+    /* Quick actions */
+    .quick-actions {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+    }
+    
+    .action-card {
+        flex: 1;
+        min-width: 200px;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16,24,40,0.08);
+        border-color: #1e40af;
+    }
+    
+    .action-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        margin: 0 auto 12px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+    }
+    
+    .action-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    
+    .action-card-text {
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    
+    /* Appointments grid - replacing table */
+    .appointments-grid {
+        display: grid;
+        gap: 16px;
+    }
+    
+    .appointment-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 24px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .appointment-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16,24,40,0.08);
+        border-color: #1e40af;
+    }
+    
+    .appointment-card.pending {
+        border-left: 4px solid #f59e0b;
+    }
+    
+    .appointment-card.completed {
+        border-left: 4px solid #10b981;
+    }
+    
+    .appointment-card.cancelled {
+        border-left: 4px solid #ef4444;
+    }
+    
+    .appointment-card.accepted {
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .appointment-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+    
+    .doctor-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .doctor-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1e40af;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    
+    .doctor-details h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 4px 0;
+    }
+    
+    .doctor-details p {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-badge.pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    
+    .status-badge.completed {
+        background: #d1fae5;
+        color: #059669;
+    }
+    
+    .status-badge.cancelled {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .status-badge.accepted {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+    
+    .appointment-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .detail-label {
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .detail-value {
+        color: #1e293b;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    .appointment-reason {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 16px;
+    }
+    
+    .reason-label {
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+    }
+    
+    .reason-text {
+        color: #1e293b;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    /* View Details Button */
+    .view-details-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #64748b;
+    }
+    
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        margin: 0 auto 20px;
+        color: #94a3b8;
+    }
+    
+    .empty-state-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    
+    .empty-state-text {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+    
+    .btn-primary {
+        background: #1e40af;
+        color: #fff;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(30, 64, 175, 0.2);
+    }
+    
+    .btn-primary:hover {
+        background: #1e3a8a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 64, 175, 0.3);
+    }
+    
+    /* Stats cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e40af;
+        margin-bottom: 8px;
+    }
+    
+    .stat-label {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .appointments-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+        
+        .quick-actions {
+            flex-direction: column;
+        }
+        
+        .action-card {
+            min-width: auto;
+        }
+        
+        .appointment-details {
+            grid-template-columns: 1fr;
+        }
+        
+        .appointments-container {
+            max-width: 100%;
+            padding: 0 0.5rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    /* Responsive adjustments */
+    @media (min-width: 1024px) {
+        .appointments-container {
+            max-width: 1200px;
+            padding: 0 2rem;
+        }
+    }
+    
+    @media (min-width: 1440px) {
+        .appointments-container {
+            max-width: 1400px;
+        }
+    }
+</style>
+
+<div class="appointments-container">
+    <!-- Back Navigation -->
+    <div class="back-navigation">
+        <a href="{% url 'patients:dashboard' %}" class="back-btn">
+            <i class='bx bx-arrow-back'></i>
+            Back to Dashboard
+        </a>
+    </div>
+    
+    <!-- Header Section -->
+    <div class="dashboard-section">
+        <div class="appointments-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class='bx bx-calendar'></i>
+                </div>
+                <div>
+                    <h1 class="page-title">My Appointments</h1>
+                    <p class="page-subtitle">View and manage your scheduled consultations</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="{% url 'patients:book_appointment' %}" class="action-card">
+                <div class="action-card-icon">
+                    <i class='bx bx-calendar-plus'></i>
+                </div>
+                <div class="action-card-title">Book New Appointment</div>
+                <div class="action-card-text">Schedule a consultation with our doctors</div>
+            </a>
+            <a href="{% url 'patients:dashboard' %}" class="action-card">
+                <div class="action-card-icon">
+                    <i class='bx bx-health'></i>
+                </div>
+                <div class="action-card-title">Health Dashboard</div>
+                <div class="action-card-text">View your complete health overview</div>
+            </a>
+            <a href="{% url 'patients:disease_prediction' %}" class="action-card">
+                <div class="action-card-icon">
+                    <i class='bx bx-brain'></i>
+                </div>
+                <div class="action-card-title">Symptom Analysis</div>
+                <div class="action-card-text">Get AI-powered health insights</div>
+            </a>
+        </div>
+
+        <!-- Statistics -->
+        {% if appointments %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_appointments }}</div>
+                <div class="stat-label">Total Appointments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ pending_count }}</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ completed_count }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ confirmed_count }}</div>
+                <div class="stat-label">Confirmed</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Appointments List -->
+    <div class="dashboard-section">
+        {% if appointments %}
+        <div class="appointments-grid">
+            {% for appt in appointments %}
+            <div class="appointment-card {{ appt.status }}">
+                <div class="appointment-header">
+                    <div class="doctor-info">
+                        <div class="doctor-avatar">
+                            {% if appt.doctor.full_name %}
+                                {{ appt.doctor.full_name|first }}{{ appt.doctor.full_name|slice:"1:2"|upper }}
+                            {% else %}
+                                {{ appt.doctor.user.first_name|first }}{{ appt.doctor.user.last_name|first }}
+                            {% endif %}
+                        </div>
+                        <div class="doctor-details">
+                            <h3>
+                                {% if appt.doctor.full_name %}
+                                    Dr. {{ appt.doctor.full_name }}
+                                {% else %}
+                                    Dr. {{ appt.doctor.user.first_name }} {{ appt.doctor.user.last_name }}
+                                {% endif %}
+                            </h3>
+                            <p>{% if appt.doctor.specialization %}{{ appt.doctor.get_specialization_display }}{% else %}General Practitioner{% endif %}</p>
+                        </div>
+                    </div>
+                    <div class="status-badge {{ appt.status }}">
+                        {{ appt.status|title }}
+                    </div>
+                </div>
+
+                <div class="appointment-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Date</div>
+                        <div class="detail-value">{{ appt.appointment_date|date:"M d, Y" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Time</div>
+                        <div class="detail-value">{{ appt.appointment_time|time:"g:i A" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Booked</div>
+                        <div class="detail-value">{{ appt.created_at|date:"M d" }}</div>
+                    </div>
+                </div>
+
+                {% if appt.reason %}
+                <div class="appointment-reason">
+                    <div class="reason-label">Reason for Visit</div>
+                    <div class="reason-text">{{ appt.reason }}</div>
+                </div>
+                {% endif %}
+                
+                {% if appt.status == 'completed' %}
+                <div class="appointment-actions" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
+                    <a href="{% url 'patients:appointment_details' appt.id %}" class="view-details-btn" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s ease;">
+                        <i class='bx bx-file-doc'></i>
+                        View Medical Summary
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class='bx bx-calendar-x'></i>
+            </div>
+            <div class="empty-state-title">No Appointments Found</div>
+            <div class="empty-state-text">
+                You haven't scheduled any appointments yet. Book your first consultation with our healthcare professionals to get started on your health journey.
+            </div>
+            <a href="{% url 'patients:book_appointment' %}" class="btn-primary">
+                <i class='bx bx-calendar-plus'></i>
+                Book Your First Appointment
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

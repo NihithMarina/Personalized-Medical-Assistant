@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Send Message - Doctor Portal{% endblock %}
+
+{% block content %}
+<style>
+    /* Full Page Layout */
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .main-container {
+        min-height: 100vh;
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Top Navigation Bar */
+    .top-navbar {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 16px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15);
+    }
+    
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .dashboard-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-1px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .nav-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .nav-title-icon {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    
+    /* Content Area */
+    .content-area {
+        padding: 32px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .message-container {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(16, 24, 40, 0.08);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .message-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1e40af;
+        font-size: 28px;
+    }
+    
+    .header-text h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .header-text p {
+        color: #64748b;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    
+    .patient-info {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .patient-info strong {
+        color: #1e40af;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #1e40af;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+    
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-primary {
+        background: #1e40af;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+    }
+    
+    .btn-secondary {
+        background: #f8fafc;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .btn-secondary:hover {
+        background: #e2e8f0;
+        color: #374151;
+        text-decoration: none;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        transition: opacity 0.3s ease;
+    }
+    
+    .back-link:hover {
+        opacity: 0.8;
+        color: white;
+        text-decoration: none;
+    }
+</style>
+
+<div class="main-container">
+    <!-- Top Navigation -->
+    <div class="top-navbar">
+        <div class="nav-left">
+            <a href="{% url 'doctors:messages' %}" class="back-link">
+                <i class='bx bx-arrow-back'></i>
+                Back to Messages
+            </a>
+        </div>
+        <div class="nav-title">
+            <div class="nav-title-icon">
+                <i class='bx bx-message-detail'></i>
+            </div>
+            Send Message
+        </div>
+        <div class="nav-right">
+            <a href="{% url 'doctors:dashboard' %}" class="dashboard-btn">
+                <i class='bx bx-grid-alt'></i>
+                Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <!-- Content Area -->
+    <div class="content-area">
+        <div class="message-container">
+            <div class="message-header">
+                <div class="header-content">
+                    <div class="header-icon">
+                        <i class='bx bx-message-add'></i>
+                    </div>
+                    <div class="header-text">
+                        <h1>Compose Message</h1>
+                        <p>Send a message to your patient about their appointment</p>
+                    </div>
+                </div>
+                
+                <div class="patient-info">
+                    <strong>Patient:</strong> {{ patient.user.get_full_name|default:patient.user.username }}<br>
+                    <strong>Appointment:</strong> {{ appointment.appointment_date|date:"M d, Y" }} at {{ appointment.appointment_time }}<br>
+                    <strong>Status:</strong> {{ appointment.get_status_display }}
+                </div>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="subject" class="form-label">Subject</label>
+                    <input type="text" id="subject" name="subject" class="form-input" 
+                           placeholder="Enter message subject" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content" class="form-label">Message</label>
+                    <textarea id="content" name="content" class="form-input form-textarea" 
+                              placeholder="Type your message here..." required></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{% url 'doctors:messages' %}" class="btn btn-secondary">
+                        <i class='bx bx-x'></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class='bx bx-send'></i> Send Message
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

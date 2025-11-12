@@ -1,0 +1,400 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Complete Appointment - Doctor Portal{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .main-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .complete-appointment-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 24px 32px;
+        text-align: center;
+    }
+    
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    .card-body {
+        padding: 32px;
+    }
+    
+    .patient-info {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid #bae6fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .patient-info h3 {
+        color: #0369a1;
+        margin: 0 0 16px 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .info-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+    
+    .info-value {
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .form-section {
+        margin-bottom: 24px;
+    }
+    
+    .form-section h4 {
+        color: #1e40af;
+        margin: 0 0 16px 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    
+    .form-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        resize: vertical;
+        transition: border-color 0.2s ease;
+    }
+    
+    .form-textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        background: white;
+        transition: border-color 0.2s ease;
+    }
+    
+    .form-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+    
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-1px);
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        background: #fef3c7;
+        color: #d97706;
+    }
+    
+    @media (max-width: 768px) {
+        .main-container {
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+        
+        .card-header, .card-body {
+            padding: 20px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <div class="complete-appointment-card">
+        <!-- Header -->
+        <div class="card-header">
+            <h2>
+                <i class='bx bx-check-circle'></i>
+                Complete Appointment
+            </h2>
+        </div>
+        
+        <!-- Body -->
+        <div class="card-body">
+            <!-- Patient Information -->
+            <div class="patient-info">
+                <h3>
+                    <i class='bx bx-user'></i>
+                    Patient Information
+                </h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Patient Name</span>
+                        <span class="info-value">{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Appointment Date</span>
+                        <span class="info-value">{{ appointment.appointment_date|date:"F d, Y" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Appointment Time</span>
+                        <span class="info-value">{{ appointment.appointment_time|time:"g:i A" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="status-badge">{{ appointment.status|title }}</span>
+                    </div>
+                </div>
+                {% if appointment.reason %}
+                <div class="info-item" style="margin-top: 16px;">
+                    <span class="info-label">Appointment Reason</span>
+                    <span class="info-value">{{ appointment.reason }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Completion Form -->
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Private Medical Notes Section -->
+                <div class="form-section">
+                    <h4>
+                        <i class='bx bx-lock'></i>
+                        Private Medical Notes (Doctor Only)
+                        <small style="color: #64748b; font-weight: 400; font-size: 0.8rem;">- Not visible to patient</small>
+                    </h4>
+                    <div class="form-group">
+                        <label for="appointment_notes" class="form-label">
+                            Clinical Observations & Internal Notes:
+                        </label>
+                        <textarea 
+                            name="appointment_notes" 
+                            id="appointment_notes" 
+                            rows="4" 
+                            class="form-textarea"
+                            placeholder="Internal medical observations, differential diagnosis considerations, clinical reasoning..."
+                            style="border-left: 4px solid #dc2626;"
+                        ></textarea>
+                        <small style="color: #dc2626; font-size: 0.8rem;">
+                            <i class='bx bx-info-circle'></i> This information is confidential and will not be shared with the patient
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- Patient Summary Section -->
+                <div class="form-section" style="background: #f0f9ff; padding: 20px; border-radius: 8px; border: 1px solid #bae6fd;">
+                    <h4>
+                        <i class='bx bx-user-check'></i>
+                        Patient Summary (Shared with Patient)
+                        <small style="color: #0369a1; font-weight: 400; font-size: 0.8rem;">- Patient will receive this</small>
+                    </h4>
+                    <div class="form-group">
+                        <label for="diagnosis" class="form-label">
+                            Diagnosis/Condition:
+                        </label>
+                        <textarea 
+                            name="diagnosis" 
+                            id="diagnosis" 
+                            rows="2" 
+                            class="form-textarea"
+                            placeholder="Patient-friendly explanation of condition or diagnosis..."
+                            style="border-left: 4px solid #059669;"
+                        ></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="patient_instructions" class="form-label">
+                            Treatment Instructions for Patient:
+                        </label>
+                        <textarea 
+                            name="patient_instructions" 
+                            id="patient_instructions" 
+                            rows="3" 
+                            class="form-textarea"
+                            placeholder="Medications prescribed, care instructions, lifestyle recommendations..."
+                            style="border-left: 4px solid #059669;"
+                        ></textarea>
+                    </div>
+                    <small style="color: #059669; font-size: 0.8rem;">
+                        <i class='bx bx-share'></i> This summary will be shared with the patient via their portal
+                    </small>
+                </div>
+                
+                <!-- Follow-up Section -->
+                <div class="form-section">
+                    <h4>
+                        <i class='bx bx-calendar-plus'></i>
+                        Follow-up Care
+                    </h4>
+                    <div class="form-group">
+                        <label for="follow_up" class="form-label">
+                            Follow-up Required:
+                        </label>
+                        <select name="follow_up" id="follow_up" class="form-select">
+                            <option value="">Select follow-up requirement</option>
+                            <option value="none">No follow-up needed</option>
+                            <option value="1_week">Follow-up in 1 week</option>
+                            <option value="2_weeks">Follow-up in 2 weeks</option>
+                            <option value="1_month">Follow-up in 1 month</option>
+                            <option value="3_months">Follow-up in 3 months</option>
+                            <option value="as_needed">As needed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="follow_up_notes" class="form-label">
+                            Follow-up Instructions (Shared with Patient):
+                        </label>
+                        <textarea 
+                            name="follow_up_notes" 
+                            id="follow_up_notes" 
+                            rows="2" 
+                            class="form-textarea"
+                            placeholder="When to return, what to monitor, emergency signs to watch for..."
+                        ></textarea>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class='bx bx-check'></i>
+                        Mark as Completed
+                    </button>
+                    <a href="{% url 'doctors:appointments' %}" class="btn btn-secondary">
+                        <i class='bx bx-x'></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-resize textareas
+document.addEventListener('DOMContentLoaded', function() {
+    const textareas = document.querySelectorAll('.form-textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    });
+});
+</script>
+
+{% endblock %}

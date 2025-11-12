@@ -1,0 +1,126 @@
+@startuml PMA_DFD_Level1
+' Personalized Medical Assistant - Data Flow Diagram (Level 1)
+' Generated: November 7, 2025
+' To use in draw.io: Arrange → Insert → Advanced → PlantUML
+
+title Personalized Medical Assistant - DFD Level 1
+
+' Professional colorful styling - Compact
+skinparam backgroundColor #F8F9FA
+skinparam dpi 150
+skinparam defaultFontSize 8
+skinparam linetype ortho
+
+skinparam rectangle {
+    BorderColor #424242
+    BorderThickness 2
+    FontSize 9
+    FontStyle bold
+}
+
+skinparam actor {
+    BorderColor #424242
+    BorderThickness 2
+    FontSize 9
+    FontStyle bold
+}
+
+skinparam database {
+    BorderColor #424242
+    BorderThickness 2
+    FontSize 8
+    FontStyle bold
+}
+
+skinparam arrow {
+    Color #424242
+    Thickness 2
+    FontSize 7
+    FontColor #212121
+}
+
+skinparam note {
+    BackgroundColor #FFF9C4
+    BorderColor #F57F17
+    BorderThickness 2
+    FontSize 8
+}
+
+' ============ Layout ============
+left to right direction
+
+' ============ Top: External Entities ============
+actor "Patient" as PAT #90CAF9
+actor "Doctor" as DOC #66BB6A
+
+' ============ Middle: Processes ============
+rectangle "1.0\nAuthentication" as P1 #81C784
+rectangle "2.0\nRecord Mgmt" as P2 #FFB74D
+rectangle "3.0\nML Prediction" as P3 #CE93D8
+rectangle "4.0\nAppointments" as P4 #EF9A9A
+rectangle "5.0\nMessaging" as P5 #80DEEA
+rectangle "6.0\nReminders" as P6 #FFA726
+
+' ============ Bottom: Data Stores ============
+database "D1: Users" as D1 #4A90E2
+database "D2: Records" as D2 #FFB74D
+database "D3: Predictions" as D3 #AB47BC
+database "D4: Appointments" as D4 #EF5350
+database "D5: Messages" as D5 #26C6DA
+
+' ============ Key Data Flows ============
+
+' Patient to System
+PAT --> P1
+PAT --> P2
+PAT --> P3
+PAT --> P4
+
+' Doctor to System
+DOC --> P1
+DOC --> P2
+DOC --> P4
+
+' System to Users
+P3 --> PAT
+P4 --> PAT
+P6 --> PAT
+
+P2 --> DOC
+P4 --> DOC
+
+' Process to Data Store
+P1 --> D1
+P2 --> D2
+P3 --> D3
+P4 --> D4
+P5 --> D5
+
+' Inter-Process
+P1 --> P2
+P2 --> P3
+P3 --> P5
+P4 --> P5
+
+note right of PAT
+**Patient Inputs:**
+• Login
+• Upload Records
+• Enter Symptoms
+• Request Appointment
+end note
+
+note left of DOC
+**Doctor Actions:**
+• Login
+• Access Records
+• Manage Schedule
+end note
+
+note bottom of P3
+**ML Prediction Process**
+Returns disease prediction
+and recommendations
+end note
+
+@enduml

@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Appointment Details - Patient Portal{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .main-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .back-navigation {
+        margin-bottom: 24px;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        color: #374151;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 10px 16px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+    
+    .back-btn:hover {
+        background: #f9fafb;
+        border-color: #d1d5db;
+        transform: translateX(-2px);
+    }
+    
+    .appointment-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: white;
+        padding: 24px 32px;
+    }
+    
+    .card-header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .appointment-info {
+        padding: 32px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .info-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 1.1rem;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        width: fit-content;
+    }
+    
+    .status-completed {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .status-accepted {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .status-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    
+    .reason-section {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 16px;
+    }
+    
+    .reason-section h4 {
+        margin: 0 0 8px 0;
+        color: #374151;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    .summary-section {
+        padding: 32px;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    }
+    
+    .summary-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .summary-header h2 {
+        margin: 0;
+        color: #0369a1;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .summary-content {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        border-left: 4px solid #0369a1;
+    }
+    
+    .summary-item {
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .summary-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .summary-label {
+        font-weight: 700;
+        color: #0369a1;
+        margin-bottom: 8px;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .summary-label i {
+        font-size: 1.1rem;
+    }
+    
+    .summary-text {
+        color: #374151;
+        line-height: 1.6;
+        white-space: pre-line;
+    }
+    
+    .no-summary {
+        text-align: center;
+        color: #6b7280;
+        font-style: italic;
+        padding: 40px;
+        background: #f9fafb;
+        border-radius: 12px;
+        border: 2px dashed #d1d5db;
+    }
+    
+    .doctor-info {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 16px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .doctor-info h4 {
+        margin: 0 0 12px 0;
+        color: #374151;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .doctor-details {
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+    
+    @media (max-width: 768px) {
+        .main-container {
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+        
+        .appointment-info, .summary-section {
+            padding: 20px;
+        }
+        
+        .card-header {
+            padding: 20px;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <!-- Back Navigation -->
+    <div class="back-navigation">
+        <a href="{% url 'patients:appointments' %}" class="back-btn">
+            <i class='bx bx-arrow-back'></i>
+            Back to Appointments
+        </a>
+    </div>
+    
+    <!-- Appointment Details Card -->
+    <div class="appointment-card">
+        <!-- Header -->
+        <div class="card-header">
+            <h1>
+                <i class='bx bx-calendar-check'></i>
+                Appointment Details
+            </h1>
+        </div>
+        
+        <!-- Appointment Information -->
+        <div class="appointment-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Appointment Date</span>
+                    <span class="info-value">{{ appointment.appointment_date|date:"F d, Y" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Appointment Time</span>
+                    <span class="info-value">{{ appointment.appointment_time|time:"g:i A" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Status</span>
+                    <span class="status-badge status-{{ appointment.status }}">
+                        {% if appointment.status == 'completed' %}
+                            <i class='bx bx-check-circle'></i>
+                        {% elif appointment.status == 'accepted' %}
+                            <i class='bx bx-time'></i>
+                        {% else %}
+                            <i class='bx bx-clock'></i>
+                        {% endif %}
+                        {{ appointment.status|title }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Appointment ID</span>
+                    <span class="info-value">#{{ appointment.id }}</span>
+                </div>
+            </div>
+            
+            <!-- Doctor Information -->
+            <div class="doctor-info">
+                <h4>
+                    <i class='bx bx-user-circle'></i>
+                    Doctor Information
+                </h4>
+                <div class="doctor-details">
+                    <strong>Dr. {{ appointment.doctor.full_name|default:appointment.doctor.user.first_name|default:appointment.doctor.user.username }}</strong>
+                    {% if appointment.doctor.specialization %}
+                        <br>Specialization: {{ appointment.doctor.get_specialization_display }}
+                    {% endif %}
+                    {% if appointment.doctor.hospital_clinic %}
+                        <br>{{ appointment.doctor.hospital_clinic }}
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Appointment Reason -->
+            {% if appointment.reason %}
+            <div class="reason-section">
+                <h4>Reason for Visit:</h4>
+                <p>{{ appointment.reason }}</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Doctor's Summary (Only for completed appointments) -->
+        {% if appointment.status == 'completed' %}
+        <div class="summary-section">
+            <div class="summary-header">
+                <i class='bx bx-file-doc' style="font-size: 1.5rem; color: #0369a1;"></i>
+                <h2>Medical Summary</h2>
+            </div>
+            
+            {% if patient_summary or diagnosis or treatment_instructions or follow_up_info %}
+            <div class="summary-content">
+                {% if diagnosis %}
+                <div class="summary-item">
+                    <div class="summary-label">
+                        <i class='bx bx-health'></i>
+                        Diagnosis/Condition
+                    </div>
+                    <div class="summary-text">{{ diagnosis|linebreaksbr }}</div>
+                </div>
+                {% endif %}
+                
+                {% if treatment_instructions %}
+                <div class="summary-item">
+                    <div class="summary-label">
+                        <i class='bx bx-prescription'></i>
+                        Treatment Instructions
+                    </div>
+                    <div class="summary-text">{{ treatment_instructions|linebreaksbr }}</div>
+                </div>
+                {% endif %}
+                
+                {% if follow_up_info %}
+                <div class="summary-item">
+                    <div class="summary-label">
+                        <i class='bx bx-calendar-plus'></i>
+                        Follow-up Care
+                    </div>
+                    <div class="summary-text">{{ follow_up_info|linebreaksbr }}</div>
+                </div>
+                {% endif %}
+                
+                {% if patient_summary and not diagnosis and not treatment_instructions and not follow_up_info %}
+                <div class="summary-item">
+                    <div class="summary-label">
+                        <i class='bx bx-file-doc'></i>
+                        Medical Notes
+                    </div>
+                    <div class="summary-text">{{ patient_summary|linebreaksbr }}</div>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="no-summary">
+                <i class='bx bx-info-circle' style="font-size: 2rem; color: #9ca3af; margin-bottom: 12px;"></i>
+                <p>No medical summary available for this appointment.</p>
+                <small>The doctor may not have completed the appointment summary yet.</small>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

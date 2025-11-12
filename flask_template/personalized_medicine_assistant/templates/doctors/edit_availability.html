@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .edit-availability-section {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        padding: 32px 24px;
+        margin: 40px auto;
+        max-width: 600px;
+    }
+    .edit-availability-header {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d6cdf;
+        margin-bottom: 24px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    .edit-availability-form label {
+        font-weight: 600;
+        color: #185a9d;
+        margin-bottom: 6px;
+        display: block;
+    }
+    .edit-availability-form input[type="time"] {
+        width: 120px;
+        padding: 6px 10px;
+        margin-right: 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+    .edit-availability-form .weekday-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 14px;
+        gap: 10px;
+    }
+    .edit-availability-form .weekday-label {
+        width: 110px;
+        font-weight: 500;
+        color: #2575fc;
+    }
+    .edit-availability-form input[type="checkbox"] {
+        margin-left: 8px;
+        accent-color: #2d6cdf;
+    }
+    .edit-availability-form button {
+        background: #2d6cdf;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 24px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 18px;
+    }
+    .edit-availability-form button:hover {
+        background: #185a9d;
+    }
+</style>
+<div class="edit-availability-section">
+    <div class="edit-availability-header">
+        <i class='bx bx-calendar'></i> Edit Doctor Availability
+    </div>
+    <form method="post" class="edit-availability-form">
+        {% csrf_token %}
+        <div style="margin-bottom:18px;display:flex;gap:16px;align-items:center;">
+            <label style="font-weight:600;color:#2575fc;">Set All Days:</label>
+            <input type="time" id="all_start_time">
+            <input type="time" id="all_end_time">
+            <label><input type="checkbox" id="all_available"> Available</label>
+            <button type="button" onclick="setAllDays()" style="background:#43cea2;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;">Apply to All</button>
+            <button type="button" onclick="copyMonday()" style="background:#2575fc;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;">Copy Monday</button>
+        </div>
+        {% for day, label in weekdays %}
+        <div class="weekday-row">
+            <span class="weekday-label">{{ label }}</span>
+            {% if availability and availability.day %}
+                <input type="time" name="start_time_{{ day }}" id="start_time_{{ day }}" value="{{ availability.day.start_time }}">
+                <input type="time" name="end_time_{{ day }}" id="end_time_{{ day }}" value="{{ availability.day.end_time }}">
+                <label>
+                    <input type="checkbox" name="available_{{ day }}" id="available_{{ day }}" {% if availability.day.is_active %}checked{% endif %}> Available
+                </label>
+            {% else %}
+                <input type="time" name="start_time_{{ day }}" id="start_time_{{ day }}" value="">
+                <input type="time" name="end_time_{{ day }}" id="end_time_{{ day }}" value="">
+                <label>
+                    <input type="checkbox" name="available_{{ day }}" id="available_{{ day }}"> Available
+                </label>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit">Save Availability</button>
+        <script>
+        function setAllDays() {
+            var start = document.getElementById('all_start_time').value;
+            var end = document.getElementById('all_end_time').value;
+            var avail = document.getElementById('all_available').checked;
+            {% for day, label in weekdays %}
+                document.getElementById('start_time_{{ day }}').value = start;
+                document.getElementById('end_time_{{ day }}').value = end;
+                document.getElementById('available_{{ day }}').checked = avail;
+            {% endfor %}
+        }
+        function copyMonday() {
+            var start = document.getElementById('start_time_0').value;
+            var end = document.getElementById('end_time_0').value;
+            var avail = document.getElementById('available_0').checked;
+            {% for day, label in weekdays %}
+                if ({{ day }} !== 0) {
+                    document.getElementById('start_time_{{ day }}').value = start;
+                    document.getElementById('end_time_{{ day }}').value = end;
+                    document.getElementById('available_{{ day }}').checked = avail;
+                }
+            {% endfor %}
+        }
+        </script>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Prediction Details - PMA{% endblock %}
+
+{% block extrahead %}
+<!-- FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .prediction-detail {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(45,108,223,0.08);
+        padding: 24px;
+        margin-bottom: 32px;
+    }
+    .section-header {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d6cdf;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .detail-item {
+        margin-bottom: 20px;
+    }
+    .detail-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 6px;
+    }
+    .detail-value {
+        font-size: 1.1rem;
+        color: #111827;
+    }
+    .recommendation-section {
+        background: #f9fafb;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 16px;
+    }
+    .recommendation-title {
+        font-weight: 600;
+        color: #2d6cdf;
+        margin-bottom: 12px;
+    }
+    .recommendation-list {
+        list-style-type: disc;
+        padding-left: 20px;
+    }
+    .recommendation-list li {
+        margin-bottom: 8px;
+    }
+    .confidence-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+    .confidence-high {
+        background: #d1fae5;
+        color: #047857;
+    }
+    .confidence-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    .confidence-low {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #2d6cdf;
+        font-weight: 600;
+        text-decoration: none;
+        margin-bottom: 24px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <a href="{% url 'patients:disease_prediction' %}" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Predictions
+    </a>
+    
+    <div class="prediction-detail">
+        <h1 class="section-header">
+            Prediction Results 
+            {% if prediction.confidence_score >= 0.75 %}
+            <span class="confidence-badge confidence-high">High Confidence ({{ prediction.confidence_score|floatformat:2 }})</span>
+            {% elif prediction.confidence_score >= 0.5 %}
+            <span class="confidence-badge confidence-medium">Medium Confidence ({{ prediction.confidence_score|floatformat:2 }})</span>
+            {% else %}
+            <span class="confidence-badge confidence-low">Low Confidence ({{ prediction.confidence_score|floatformat:2 }})</span>
+            {% endif %}
+        </h1>
+        
+        <div class="detail-item">
+            <div class="detail-label">Date</div>
+            <div class="detail-value">{{ prediction.created_at|date:"F j, Y, g:i a" }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Symptoms Reported</div>
+            <div class="detail-value">{{ prediction.symptoms }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Predicted Condition</div>
+            <div class="detail-value">{{ prediction.predicted_disease }}</div>
+        </div>
+        
+        <div class="recommendation-section">
+            <h3 class="recommendation-title">Recommended Medicines</h3>
+            <div class="detail-value">{{ prediction.recommended_medicines|linebreaksbr }}</div>
+        </div>
+        
+        <div class="recommendation-section">
+            <h3 class="recommendation-title">Recommended Diet & Lifestyle</h3>
+            <div class="detail-value">{{ prediction.recommended_diet|linebreaksbr }}</div>
+        </div>
+        
+        <div class="mt-6">
+            <p class="text-sm text-gray-500">
+                <i class="fas fa-info-circle"></i> Note: This prediction is based on machine learning and should be used for informational purposes only. Always consult a healthcare professional for medical advice.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

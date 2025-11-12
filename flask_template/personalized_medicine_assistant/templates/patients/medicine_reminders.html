@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .reminders-list-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        padding: 32px 24px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .reminders-list-container h2 {
+        text-align: center;
+        margin-bottom: 24px;
+        color: #2d6cdf;
+    }
+    .reminder-item {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 16px 0;
+    }
+    .reminder-item:last-child {
+        border-bottom: none;
+    }
+    .reminder-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 6px;
+    }
+    .reminder-details {
+        color: #555;
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+    .reminder-actions {
+        margin-top: 8px;
+    }
+    .reminder-actions a {
+        color: #2d6cdf;
+        text-decoration: none;
+        margin-right: 12px;
+        font-weight: 500;
+    }
+    .reminder-actions a:hover {
+        text-decoration: underline;
+    }
+</style>
+<div class="reminders-list-container">
+    <h2>Medicine Reminders</h2>
+    {% if reminders %}
+        {% for reminder in reminders %}
+            <div class="reminder-item">
+                <div class="reminder-title">{{ reminder.medicine_name }} ({{ reminder.dosage }})</div>
+                <div class="reminder-details">Frequency: {{ reminder.frequency }}</div>
+                <div class="reminder-details">Start: {{ reminder.start_date }} | End: {{ reminder.end_date }}</div>
+                <div class="reminder-details">Times: {{ reminder.time_1 }}{% if reminder.time_2 %}, {{ reminder.time_2 }}{% endif %}{% if reminder.time_3 %}, {{ reminder.time_3 }}{% endif %}{% if reminder.time_4 %}, {{ reminder.time_4 }}{% endif %}</div>
+                <div class="reminder-details">Notes: {{ reminder.notes }}</div>
+                <div class="reminder-actions">
+                    <a href="{% url 'patients:edit_medicine_reminder' reminder.id %}">Edit</a>
+                    <form action="{% url 'patients:delete_medicine_reminder' reminder.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="background:none;border:none;color:#2d6cdf;cursor:pointer;font-weight:500;padding:0;margin:0;">Delete</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No medicine reminders found.</p>
+    {% endif %}
+    <div style="text-align:center; margin-top:24px;">
+        <a href="{% url 'patients:add_medicine_reminder' %}" style="background:#2d6cdf;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;">Add Reminder</a>
+    </div>
+</div>
+{% endblock %}

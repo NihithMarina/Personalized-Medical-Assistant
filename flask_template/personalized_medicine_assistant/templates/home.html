@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Welcome - PMA{% endblock %}
+
+{% block content %}
+<div class="home-hero bg-gradient-to-br from-blue-50 to-green-50 py-16">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <!-- left: bold hero -->
+            <div class="hero-content lg:pr-12">
+                <!-- brand badge removed per request -->
+
+                <h1 class="text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-6">Personalized Medicine Assistant</h1>
+                <p class="text-lg text-gray-600 mb-8 max-w-2xl">An intelligent healthcare companion to help you predict conditions, manage medications, and book appointments — all in one secure place.</p>
+
+                <div class="flex items-center gap-4">
+                    <a href="{% url 'register' %}" class="inline-flex items-center bg-primary hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold shadow">Get started</a>
+                    <a href="{% url 'login' %}" class="inline-flex items-center bg-white border border-gray-200 px-6 py-3 rounded-lg font-medium text-gray-700">Sign in</a>
+                </div>
+            </div>
+
+            <!-- right: illustration -->
+            <div class="hero-visual flex justify-center lg:justify-end">
+                <div class="visual-wrap bg-white/80 rounded-2xl p-6 shadow-lg flex items-center justify-center"
+                     style="width:100%; max-width:640px; min-height:320px;">
+                    <img
+                        src="{% static 'images/Healtyhcare.png' %}"
+                        alt="Healthcare illustration"
+                        class="w-full h-full object-contain rounded-xl select-none"
+                        loading="eager"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <!-- features grid: single grid so cards can stretch to equal height -->
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-transparent h-full">
+                <div class="flex items-start gap-4 h-full">
+                    <div class="flex-shrink-0 text-2xl text-primary"><i class='bx bx-brain'></i></div>
+                    <div>
+                        <h3 class="font-semibold text-lg">Disease Prediction</h3>
+                        <p class="text-gray-600">Quick symptom-based predictions using trained models to help you decide next steps.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-transparent h-full">
+                <div class="flex items-start gap-4 h-full">
+                    <div class="flex-shrink-0 text-2xl text-red-500"><i class='bx bx-heart'></i></div>
+                    <div>
+                        <h3 class="font-semibold text-lg">Health Metrics</h3>
+                        <p class="text-gray-600">Track BMI and other vitals to get tailored recommendations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-transparent h-full">
+                <div class="flex items-start gap-4 h-full">
+                    <div class="flex-shrink-0 text-2xl text-amber-500"><i class='bx bx-bell'></i></div>
+                    <div>
+                        <h3 class="font-semibold text-lg">Medicine Reminders</h3>
+                        <p class="text-gray-600">Personalized reminders so you never miss a dose.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-transparent h-full">
+                <div class="flex items-start gap-4 h-full">
+                    <div class="flex-shrink-0 text-2xl text-primary"><i class='bx bx-folder-open'></i></div>
+                    <div>
+                        <h3 class="font-semibold text-lg">Medical Records</h3>
+                        <p class="text-gray-600">Securely store and access your medical history anytime.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-transparent h-full">
+                <div class="flex items-start gap-4 h-full">
+                    <div class="flex-shrink-0 text-2xl text-blue-600"><i class='bx bx-calendar-check'></i></div>
+                    <div>
+                        <h3 class="font-semibold text-lg">Doctor Appointments</h3>
+                        <p class="text-gray-600">Book and manage visits with trusted healthcare professionals.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-transparent h-full">
+                <div class="flex items-start gap-4 h-full">
+                    <div class="flex-shrink-0 text-2xl text-gray-500"><i class='bx bx-lock'></i></div>
+                    <div>
+                        <h3 class="font-semibold text-lg">Privacy & Security</h3>
+                        <p class="text-gray-600">We prioritize your privacy with industry-standard protections.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
