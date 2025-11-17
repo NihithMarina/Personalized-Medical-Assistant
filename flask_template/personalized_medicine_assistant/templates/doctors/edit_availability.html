@@ -1,127 +1,565 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Availability - Doctor Dashboard{% endblock %}
+
 {% block content %}
 <style>
-    .edit-availability-section {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-        padding: 32px 24px;
-        margin: 40px auto;
-        max-width: 600px;
+    /* Full Page Layout */
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    .edit-availability-header {
-        font-size: 2rem;
+    
+    .main-container {
+        min-height: 100vh;
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Top Navigation Bar */
+    .top-navbar {
+        background: #3b82f6;
+        color: white;
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2);
+    }
+    
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+    
+    .back-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+    
+    .back-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .nav-title {
+        font-size: 1.75rem;
         font-weight: 700;
-        color: #2d6cdf;
-        margin-bottom: 24px;
-        text-align: center;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .nav-title-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
+        font-size: 22px;
     }
-    .edit-availability-form label {
-        font-weight: 600;
-        color: #185a9d;
-        margin-bottom: 6px;
-        display: block;
+    
+    /* Main Content Area */
+    .content-wrapper {
+        padding: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
     }
-    .edit-availability-form input[type="time"] {
-        width: 120px;
-        padding: 6px 10px;
-        margin-right: 10px;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-        font-size: 15px;
+    
+    /* Page Header */
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 32px 40px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 20px rgba(16, 24, 40, 0.08);
+        border: 1px solid #f1f5f9;
     }
-    .edit-availability-form .weekday-row {
+    
+    .header-content {
         display: flex;
         align-items: center;
-        margin-bottom: 14px;
+        gap: 20px;
+    }
+    
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #3b82f6;
+        font-size: 28px;
+        flex-shrink: 0;
+    }
+    
+    .header-text h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0 0 8px 0;
+    }
+    
+    .header-text p {
+        color: #64748b;
+        font-size: 1rem;
+        margin: 0;
+    }
+    
+    /* Quick Actions Card */
+    .quick-actions-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .quick-actions-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 16px 0;
+    }
+    
+    .quick-actions-row {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .quick-actions-row label {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.95rem;
+    }
+    
+    .quick-actions-row input[type="time"] {
+        padding: 10px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .quick-actions-row input[type="time"]:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #475569;
+        cursor: pointer;
+    }
+    
+    .checkbox-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #3b82f6;
+        cursor: pointer;
+    }
+    
+    .quick-action-btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-apply {
+        background: #10b981;
+        color: white;
+    }
+    
+    .btn-apply:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn-copy {
+        background: #3b82f6;
+        color: white;
+    }
+    
+    .btn-copy:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Schedule Form Card */
+    .schedule-form-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px 40px;
+        box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .form-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 24px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .form-title i {
+        color: #3b82f6;
+    }
+    
+    .schedule-grid {
+        display: grid;
+        gap: 16px;
+    }
+    
+    .day-row {
+        display: grid;
+        grid-template-columns: 140px 1fr 1fr 180px;
+        gap: 16px;
+        align-items: center;
+        padding: 16px 20px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+    
+    .day-row:hover {
+        background: white;
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+    
+    .day-label {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .day-label i {
+        color: #3b82f6;
+        font-size: 20px;
+    }
+    
+    .time-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .time-input-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .time-input-group input[type="time"] {
+        padding: 10px 14px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background: white;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .time-input-group input[type="time"]:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .availability-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        background: white;
+        border-radius: 8px;
+        border: 2px solid #e2e8f0;
+    }
+    
+    .availability-toggle input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: #3b82f6;
+        cursor: pointer;
+    }
+    
+    .availability-toggle label {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.95rem;
+        cursor: pointer;
+        margin: 0;
+    }
+    
+    /* Save Button */
+    .form-actions {
+        margin-top: 32px;
+        display: flex;
+        gap: 16px;
+        justify-content: flex-end;
+    }
+    
+    .save-btn {
+        background: #3b82f6;
+        color: white;
+        padding: 14px 32px;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
         gap: 10px;
     }
-    .edit-availability-form .weekday-label {
-        width: 110px;
-        font-weight: 500;
-        color: #2575fc;
+    
+    .save-btn:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
     }
-    .edit-availability-form input[type="checkbox"] {
-        margin-left: 8px;
-        accent-color: #2d6cdf;
+    
+    .save-btn i {
+        font-size: 20px;
     }
-    .edit-availability-form button {
-        background: #2d6cdf;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 24px;
+    
+    .cancel-btn {
+        background: #e2e8f0;
+        color: #475569;
+        padding: 14px 32px;
+        border-radius: 10px;
         font-size: 1.1rem;
-        font-weight: 600;
+        font-weight: 700;
+        border: none;
         cursor: pointer;
-        transition: background 0.2s;
-        margin-top: 18px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
-    .edit-availability-form button:hover {
-        background: #185a9d;
+    
+    .cancel-btn:hover {
+        background: #cbd5e1;
+        transform: translateY(-2px);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 968px) {
+        .day-row {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .content-wrapper {
+            padding: 20px;
+        }
+        
+        .quick-actions-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 </style>
-<div class="edit-availability-section">
-    <div class="edit-availability-header">
-        <i class='bx bx-calendar'></i> Edit Doctor Availability
+
+<div class="main-container">
+    <!-- Top Navigation -->
+    <div class="top-navbar">
+        <div class="nav-left">
+            <a href="{% url 'doctors:profile' %}" class="back-btn">
+                <i class='bx bx-arrow-back'></i>
+                <span>Back to Profile</span>
+            </a>
+            <div class="nav-title">
+                <div class="nav-title-icon">
+                    <i class='bx bx-calendar-edit'></i>
+                </div>
+                <span>Edit Availability</span>
+            </div>
+        </div>
     </div>
-    <form method="post" class="edit-availability-form">
-        {% csrf_token %}
-        <div style="margin-bottom:18px;display:flex;gap:16px;align-items:center;">
-            <label style="font-weight:600;color:#2575fc;">Set All Days:</label>
-            <input type="time" id="all_start_time">
-            <input type="time" id="all_end_time">
-            <label><input type="checkbox" id="all_available"> Available</label>
-            <button type="button" onclick="setAllDays()" style="background:#43cea2;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;">Apply to All</button>
-            <button type="button" onclick="copyMonday()" style="background:#2575fc;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;">Copy Monday</button>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class='bx bx-time-five'></i>
+                </div>
+                <div class="header-text">
+                    <h1>Manage Your Availability</h1>
+                    <p>Set your consultation hours for each day of the week</p>
+                </div>
+            </div>
         </div>
-        {% for day, label in weekdays %}
-        <div class="weekday-row">
-            <span class="weekday-label">{{ label }}</span>
-            {% if availability and availability.day %}
-                <input type="time" name="start_time_{{ day }}" id="start_time_{{ day }}" value="{{ availability.day.start_time }}">
-                <input type="time" name="end_time_{{ day }}" id="end_time_{{ day }}" value="{{ availability.day.end_time }}">
-                <label>
-                    <input type="checkbox" name="available_{{ day }}" id="available_{{ day }}" {% if availability.day.is_active %}checked{% endif %}> Available
+
+        <!-- Quick Actions -->
+        <div class="quick-actions-card">
+            <h3 class="quick-actions-title">Quick Actions</h3>
+            <div class="quick-actions-row">
+                <label>Set All Days:</label>
+                <input type="time" id="all_start_time" placeholder="Start Time">
+                <input type="time" id="all_end_time" placeholder="End Time">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="all_available">
+                    <span>Available</span>
                 </label>
-            {% else %}
-                <input type="time" name="start_time_{{ day }}" id="start_time_{{ day }}" value="">
-                <input type="time" name="end_time_{{ day }}" id="end_time_{{ day }}" value="">
-                <label>
-                    <input type="checkbox" name="available_{{ day }}" id="available_{{ day }}"> Available
-                </label>
-            {% endif %}
+                <button type="button" onclick="setAllDays()" class="quick-action-btn btn-apply">
+                    <i class='bx bx-check-circle'></i>
+                    Apply to All
+                </button>
+                <button type="button" onclick="copyMonday()" class="quick-action-btn btn-copy">
+                    <i class='bx bx-copy'></i>
+                    Copy Monday
+                </button>
+            </div>
         </div>
-        {% endfor %}
-        <button type="submit">Save Availability</button>
-        <script>
-        function setAllDays() {
-            var start = document.getElementById('all_start_time').value;
-            var end = document.getElementById('all_end_time').value;
-            var avail = document.getElementById('all_available').checked;
-            {% for day, label in weekdays %}
-                document.getElementById('start_time_{{ day }}').value = start;
-                document.getElementById('end_time_{{ day }}').value = end;
-                document.getElementById('available_{{ day }}').checked = avail;
-            {% endfor %}
-        }
-        function copyMonday() {
-            var start = document.getElementById('start_time_0').value;
-            var end = document.getElementById('end_time_0').value;
-            var avail = document.getElementById('available_0').checked;
-            {% for day, label in weekdays %}
-                if ({{ day }} !== 0) {
-                    document.getElementById('start_time_{{ day }}').value = start;
-                    document.getElementById('end_time_{{ day }}').value = end;
-                    document.getElementById('available_{{ day }}').checked = avail;
-                }
-            {% endfor %}
-        }
-        </script>
-    </form>
+
+        <!-- Schedule Form -->
+        <div class="schedule-form-card">
+            <h2 class="form-title">
+                <i class='bx bx-calendar-week'></i>
+                Weekly Schedule
+            </h2>
+            <form method="post" id="availability-form">
+                {% csrf_token %}
+                <div class="schedule-grid">
+                    {% for day, label in weekdays %}
+                    <div class="day-row">
+                        <div class="day-label">
+                            <i class='bx bx-calendar'></i>
+                            <span>{{ label }}</span>
+                        </div>
+                        <div class="time-input-group">
+                            <label class="time-input-label">Start Time</label>
+                            {% if availability and availability.day %}
+                                <input type="time" name="start_time_{{ day }}" id="start_time_{{ day }}" value="{{ availability.day.start_time }}">
+                            {% else %}
+                                <input type="time" name="start_time_{{ day }}" id="start_time_{{ day }}" value="">
+                            {% endif %}
+                        </div>
+                        <div class="time-input-group">
+                            <label class="time-input-label">End Time</label>
+                            {% if availability and availability.day %}
+                                <input type="time" name="end_time_{{ day }}" id="end_time_{{ day }}" value="{{ availability.day.end_time }}">
+                            {% else %}
+                                <input type="time" name="end_time_{{ day }}" id="end_time_{{ day }}" value="">
+                            {% endif %}
+                        </div>
+                        <div class="availability-toggle">
+                            {% if availability and availability.day %}
+                                <input type="checkbox" name="available_{{ day }}" id="available_{{ day }}" {% if availability.day.is_active %}checked{% endif %}>
+                            {% else %}
+                                <input type="checkbox" name="available_{{ day }}" id="available_{{ day }}">
+                            {% endif %}
+                            <label for="available_{{ day }}">Available</label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{% url 'doctors:profile' %}" class="cancel-btn">
+                        <i class='bx bx-x'></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="save-btn">
+                        <i class='bx bx-save'></i>
+                        Save Availability
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+function setAllDays() {
+    var start = document.getElementById('all_start_time').value;
+    var end = document.getElementById('all_end_time').value;
+    var avail = document.getElementById('all_available').checked;
+    
+    if (!start || !end) {
+        alert('Please set both start and end times');
+        return;
+    }
+    
+    {% for day, label in weekdays %}
+        document.getElementById('start_time_{{ day }}').value = start;
+        document.getElementById('end_time_{{ day }}').value = end;
+        document.getElementById('available_{{ day }}').checked = avail;
+    {% endfor %}
+}
+
+function copyMonday() {
+    var start = document.getElementById('start_time_0').value;
+    var end = document.getElementById('end_time_0').value;
+    var avail = document.getElementById('available_0').checked;
+    
+    if (!start || !end) {
+        alert('Please set Monday schedule first');
+        return;
+    }
+    
+    {% for day, label in weekdays %}
+        if ({{ day }} !== 0) {
+            document.getElementById('start_time_{{ day }}').value = start;
+            document.getElementById('end_time_{{ day }}').value = end;
+            document.getElementById('available_{{ day }}').checked = avail;
+        }
+    {% endfor %}
+}
+</script>
 {% endblock %}

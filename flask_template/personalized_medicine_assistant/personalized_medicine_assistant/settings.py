@@ -5,6 +5,12 @@ Django settings for personalized_medicine_assistant project.
 from pathlib import Path
 import os
 from decouple import config
+import warnings
+
+# Suppress scikit-learn warnings
+warnings.filterwarnings('ignore', category=UserWarning, module='sklearn')
+import logging
+logging.getLogger('sklearn').setLevel(logging.ERROR)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

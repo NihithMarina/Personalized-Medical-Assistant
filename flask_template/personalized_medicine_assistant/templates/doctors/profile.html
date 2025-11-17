@@ -1,155 +1,498 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Doctor Profile - {{ profile.full_name }}{% endblock %}
+
 {% block content %}
 <style>
-    .profile-section {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-        padding: 32px 24px;
-        margin: 40px auto;
-        max-width: 700px;
+    /* Full Page Layout */
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    .profile-header {
-        font-size: 2rem;
+    
+    .main-container {
+        min-height: 100vh;
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Top Navigation Bar */
+    .top-navbar {
+        background: #3b82f6;
+        color: white;
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2);
+    }
+    
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+    
+    .dashboard-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+    
+    .dashboard-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .nav-title {
+        font-size: 1.75rem;
         font-weight: 700;
-        color: #2d6cdf;
-        margin-bottom: 24px;
-        text-align: center;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .nav-title-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 22px;
+    }
+    
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
         gap: 12px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    .profile-info {
+    
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 700;
+    }
+    
+    /* Main Content Area */
+    .content-wrapper {
+        padding: 40px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    /* Profile Header Card */
+    .profile-header-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
         margin-bottom: 32px;
+        box-shadow: 0 4px 20px rgba(16, 24, 40, 0.08);
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 32px;
     }
-    .profile-info h3 {
-        font-size: 1.3rem;
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 48px;
+        flex-shrink: 0;
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+    }
+    
+    .profile-header-content {
+        flex: 1;
+    }
+    
+    .profile-name {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0 0 8px 0;
+    }
+    
+    .profile-specialization {
+        font-size: 1.25rem;
+        color: #3b82f6;
         font-weight: 600;
-        color: #185a9d;
-        margin-bottom: 10px;
+        margin: 0 0 16px 0;
     }
-    .profile-info p {
-        font-size: 1.1rem;
-        margin-bottom: 6px;
-        color: #333;
+    
+    .profile-meta {
+        display: flex;
+        gap: 32px;
+        flex-wrap: wrap;
     }
-    .profile-management {
-        margin-bottom: 32px;
-    }
-    .profile-management h3 {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #2575fc;
-        margin-bottom: 10px;
-    }
-    .profile-management ul {
-        list-style: none;
-        padding: 0;
-    }
-    .profile-management li {
-        padding: 8px 0;
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
         font-size: 1rem;
-        color: #333;
-        border-bottom: 1px solid #e5e7eb;
     }
-    .profile-management li:last-child {
-        border-bottom: none;
+    
+    .meta-item i {
+        color: #3b82f6;
+        font-size: 20px;
     }
-    .schedule-section {
-        background: #f9fafb;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        padding: 24px 18px;
-        margin-top: 24px;
+    
+    /* Single Column Layout */
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 32px;
+        margin-bottom: 32px;
     }
-    .schedule-section h3 {
-        font-size: 1.2rem;
+    
+    /* Profile Card */
+    .profile-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
+    }
+    
+    .card-title i {
+        color: #3b82f6;
+        font-size: 24px;
+    }
+    
+    .info-grid {
+        display: grid;
+        gap: 16px;
+    }
+    
+    .info-item {
+        display: flex;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .info-label {
         font-weight: 600;
-        margin-bottom: 12px;
-        color: #2d6cdf;
+        color: #475569;
+        min-width: 140px;
+        font-size: 0.95rem;
     }
+    
+    .info-value {
+        color: #1e293b;
+        font-weight: 500;
+        font-size: 1rem;
+    }
+    
+    /* Schedule Section */
+    .schedule-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+        border: 1px solid #f1f5f9;
+        grid-column: 1 / -1;
+    }
+    
     .schedule-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 12px;
-        background: #fff;
-        border-radius: 8px;
+        margin-top: 24px;
+        background: #f8fafc;
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(45,108,223,0.08);
     }
-    .schedule-table th, .schedule-table td {
-        padding: 10px 8px;
-        text-align: left;
-    }
+    
     .schedule-table th {
-        background: #2d6cdf;
-        color: #fff;
+        background: #3b82f6;
+        color: white;
+        padding: 16px 20px;
+        text-align: left;
         font-weight: 600;
-        border-bottom: 2px solid #e5e7eb;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
-    .schedule-table tr {
-        border-bottom: 1px solid #e5e7eb;
+    
+    .schedule-table td {
+        padding: 16px 20px;
+        border-bottom: 1px solid #e2e8f0;
+        background: white;
+        color: #1e293b;
+        font-weight: 500;
     }
-    .schedule-table tr:last-child {
+    
+    .schedule-table tr:last-child td {
         border-bottom: none;
     }
-    .edit-btn {
-        background: #43cea2;
-        color: #fff;
-        border-radius: 6px;
-        padding: 6px 14px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        text-decoration: none;
-        transition: background 0.2s, color 0.2s;
+    
+    .schedule-table tr:hover td {
+        background: #f8fafc;
     }
+    
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+    
+    .status-available {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .status-unavailable {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    /* Action Buttons */
+    .edit-btn {
+        background: #3b82f6;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+    
     .edit-btn:hover {
-        background: #185a9d;
+        background: #2563eb;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .edit-btn i {
+        font-size: 18px;
+    }
+    
+    .schedule-actions {
+        margin-top: 24px;
+        text-align: right;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .profile-header-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .profile-meta {
+            justify-content: center;
+        }
+        
+        .content-wrapper {
+            padding: 20px;
+        }
     }
 </style>
-<div class="profile-section">
-    <div class="profile-header">
-        <i class='bx bx-user-md'></i> Doctor Profile & Management
+
+<div class="main-container">
+    <!-- Top Navigation -->
+    <div class="top-navbar">
+        <div class="nav-left">
+            <a href="{% url 'doctors:dashboard' %}" class="dashboard-btn">
+                <i class='bx bx-home-alt'></i>
+                <span>Back to Dashboard</span>
+            </a>
+            <div class="nav-title">
+                <div class="nav-title-icon">
+                    <i class='bx bx-user-circle'></i>
+                </div>
+                <span>Doctor Profile</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ profile.full_name|first|upper }}
+                </div>
+                <span>Dr. {{ profile.full_name }}</span>
+            </div>
+        </div>
     </div>
-    <div class="profile-info">
-        <h3>Basic Information</h3>
-        <p><strong>Name:</strong> {{ profile.full_name }}</p>
-        <p><strong>License Number:</strong> {{ profile.license_number }}</p>
-        <p><strong>Specialization:</strong> {{ profile.specialization }}</p>
-        <p><strong>Qualifications:</strong> {{ profile.qualifications }}</p>
-        <p><strong>Experience:</strong> {{ profile.experience }} years</p>
-    </div>
-    <div class="profile-management">
-        <h3>Profile Management</h3>
-        <ul>
-            <li>Edit Profile Information <a href="{% url 'doctors:edit_profile' %}" class="edit-btn">Edit</a></li>
-        </ul>
-    </div>
-    <div class="schedule-section">
-        <h3>Schedule Management</h3>
-        <table class="schedule-table">
-            <thead>
-                <tr>
-                    <th>Day</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for day, info in availability.items %}
-                <tr>
-                    <td>{{ day }}</td>
-                    <td>{{ info.start_time }}</td>
-                    <td>{{ info.end_time }}</td>
-                    <td>{% if info.is_active %}<span style="color:green;font-weight:600;">Available</span>{% else %}<span style="color:red;font-weight:600;">Not Available</span>{% endif %}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div style="margin-top:16px;text-align:right;">
-            <a href="{% url 'doctors:edit_availability' %}" class="edit-btn">Edit Schedule</a>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <!-- Profile Header -->
+        <div class="profile-header-card">
+            <div class="profile-avatar">
+                {{ profile.full_name|first|upper }}
+            </div>
+            <div class="profile-header-content">
+                <h1 class="profile-name">Dr. {{ profile.full_name }}</h1>
+                <p class="profile-specialization">{{ profile.specialization }}</p>
+                <div class="profile-meta">
+                    <div class="meta-item">
+                        <i class='bx bx-id-card'></i>
+                        <span>License: {{ profile.license_number }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class='bx bx-time-five'></i>
+                        <span>{{ profile.experience }} years experience</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class='bx bx-medal'></i>
+                        <span>{{ profile.qualifications }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Grid -->
+        <div class="profile-grid">
+            <!-- Basic Information -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class='bx bx-info-circle'></i>
+                        Basic Information
+                    </h2>
+                    <a href="{% url 'doctors:edit_profile' %}" class="edit-btn">
+                        <i class='bx bx-edit'></i>
+                        Edit Profile
+                    </a>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Full Name:</span>
+                        <span class="info-value">{{ profile.full_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">License Number:</span>
+                        <span class="info-value">{{ profile.license_number }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Specialization:</span>
+                        <span class="info-value">{{ profile.specialization }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Qualifications:</span>
+                        <span class="info-value">{{ profile.qualifications }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Experience:</span>
+                        <span class="info-value">{{ profile.experience }} years</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Management -->
+            <div class="schedule-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class='bx bx-calendar'></i>
+                        Schedule Management
+                    </h2>
+                    <a href="{% url 'doctors:edit_availability' %}" class="edit-btn">
+                        <i class='bx bx-edit'></i>
+                        Edit Schedule
+                    </a>
+                </div>
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day, info in availability.items %}
+                        <tr>
+                            <td><strong>{{ day }}</strong></td>
+                            <td>{{ info.start_time }}</td>
+                            <td>{{ info.end_time }}</td>
+                            <td>
+                                {% if info.is_active %}
+                                    <span class="status-badge status-available">Available</span>
+                                {% else %}
+                                    <span class="status-badge status-unavailable">Not Available</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
