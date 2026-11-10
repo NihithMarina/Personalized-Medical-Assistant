@@ -1,0 +1,61 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Django: Runserver",
+            "type": "shell",
+            "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "args": [
+                "manage.py",
+                "runserver"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\personalized_medicine_assistant"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Django: Check",
+            "type": "shell",
+            "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "args": [
+                "manage.py",
+                "check"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\personalized_medicine_assistant"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Django: Migrate",
+            "type": "shell",
+            "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "args": [
+                "manage.py",
+                "migrate"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\personalized_medicine_assistant"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Django: Test",
+            "type": "shell",
+            "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "args": [
+                "manage.py",
+                "test"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\personalized_medicine_assistant"
+            },
+            "group": "test",
+            "problemMatcher": []
+        }
+    ]
+}
